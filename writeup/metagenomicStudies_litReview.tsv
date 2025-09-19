@@ -1,0 +1,14 @@
+	Source Country	Year	Retting Type	Raw Reads	Marker(s)	Data Availability and Accession	DOI	Selected
+Kenaf:	China	2022	Water	Yes	16S	BioProject (PRJNA850647)	10.1186/s12870-022-03890-5	True
+	USA	2013	Water	Yes	16S	Lost on MG-RAST (4513835.3-41.3), requested	10.1007/s10295-013-1242-1	False
+Jute:	India	2008	Water	No	16S	GenBank (DQ252375-481, DQ238814-26, EF067808-39)	10.1007/s00248-007-9345-8	False
+	Bangladesh	2020	Water	No	16S	GenBank (MH010052-195)	10.1038/s41598-020-61898-z	False
+Hemp:	France	2017	Field	No	16S, ITS	GenBank ( LT622055-69, LT622070-85)	10.1186/s13568-017-0355-8	False
+	USA	2024	Water	Yes	16S	By request, requested	10.3390/pr12081725	False
+	USA	2020	Field	Yes	16S	BioProject (PRJNA494847)	10.3390/agronomy10040492	True
+	France	2023	Field	Yes	16S, 18S	BioProject (PRJNA911790)	10.1007/s00253-023-12582-5	False
+	Italy	2024	Field	Yes	16S, ITS	Non-public BioProject (PRJNA1124099), requested	10.1007/s00253-024-13300-5	False
+	France	2015	Field	No	16S, 18S	GenBank (KM507203-90)	10.1007/s00253-014-6356-5	False
+Flax:	France	2020	Field	Yes	16S, ITS	BioProject (PRJEB27872)	10.1016/j.indcrop.2020.112255	True
+	France	2017	Field	Yes	16S, ITS	BioProject (PRJEB20299)	10.3389/fmicb.2017.02052	True
+	China	2016	Water	Yes	16S	BioProject (PRJNA309354)	10.1038/srep31812	True

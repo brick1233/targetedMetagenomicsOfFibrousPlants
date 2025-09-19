@@ -1,0 +1,91 @@
+#set output dir
+set.dir(output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output)
+
+#make stability file, and combine contigs
+make.file(inputdir=/nobackup/qsfl69/fibrousPlantsRetting/data/fastqFiles/PRJNA309354, type=fastq, prefix=stability)
+make.contigs(file=current, maxambig=0, maxlength=500, maxhomop=8, insert=30)
+summary.seqs(fasta=current)
+
+# screen seqs and ID unique seqs
+screen.seqs(fasta=current, count=stability.contigs.count_table, maxambig=0, maxlength=500, minlength=300, maxhomop=8, contigsreport=current, minoverlap=30, mismatches=0)
+summary.seqs(fasta=current)
+unique.seqs(fasta=current, count=current)
+
+#trim reference to target only the region specified by the primers
+pcr.seqs(fasta=/nobackup/qsfl69/fibrousPlantsRetting/data/reference/silva.nr_v138_2.align, start=11895, end=28464, keepdots=F)
+rename.file(input=silva.nr_v138_2.pcr.align, new=silva.v34.fasta)
+
+
+#align seqs to reference, screen to ensure each seq overlaps the same region, and filter out overhangs/remove shared gaps
+align.seqs(fasta=stability.trim.contigs.good.unique.fasta, reference=silva.v34.fasta)
+summary.seqs(fasta=current, count=current)
+screen.seqs(fasta=current, count=current, start=1, end=16570)
+summary.seqs(fasta=current, count=current)
+filter.seqs(fasta=current, vertical=T, trump=.)
+unique.seqs(fasta=current, count=current)
+summary.seqs(fasta=current, count=current)
+
+# precluster
+pre.cluster(fasta=current, count=current, diffs=4)
+
+#remove chimeras
+chimera.uchime(fasta=current, count=current)
+summary.seqs(fasta=current, count=current)
+
+#rename fasta and count
+#classify seqs and remove undesireables
+classify.seqs(fasta=current, count=current, reference=/nobackup/qsfl69/fibrousPlantsRetting/data/reference/trainset19_072023.pds/trainset19_072023.pds.fasta, taxonomy=/nobackup/qsfl69/fibrousPlantsRetting/data/reference/trainset19_072023.pds/trainset19_072023.pds.tax, method=wang)
+remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+summary.tax(taxonomy=current, count=current)
+rename.file(fasta=current, count=current, taxonomy=current, prefix=final)
+
+#cluster and classify OTUs (method = optiCluster)
+dist.seqs(fasta=current, cutoff=0.03) 
+cluster(column=current, count=current, method=opti, cutoff=0.03, delta=0)
+make.shared(list=current, count=current, label=0.03) 
+rarefaction.single(shared=current, freq=1, iters=1000)
+
+#identify OTUs
+classify.otu(list=current, count=current, taxonomy=current, label=0.03)
+
+#ASVs
+make.shared(count=final.count_table)
+classify.otu(list=final.asv.list, count=final.count_table, taxonomy=final.taxonomy, label=ASV)
+rarefaction.single(shared=final.asv.shared, freq=1, iters=1000)
+
+# Phylotypes
+phylotype(taxonomy=final.taxonomy)
+make.shared(list=final.tx.list, count=final.count_table, label=1)
+classify.otu(list=final.tx.list, count=final.count_table, taxonomy=final.taxonomy, label=1)
+
+#alpha-analysis 
+count.groups(shared=final.opti_mcc.shared)
+sub.sample(shared=current)
+rarefaction.single(shared=current, freq=1, iters=1000)
+summary.single(shared=current, calc=nseqs-coverage-chao-shannon-invsimpson-heip, subsample=T)
+
+#beta-analysis
+dist.shared(shared=final.opti_mcc.shared, calc=thetayc-jclass, subsample=t)
+pcoa(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist)
+pcoa(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist)
+
+#degap sequences
+get.oturep(column=final.dist, list=final.opti_mcc.list, count=final.count_table, fasta=final.fasta)
+
+# differential analysis (amova and lefse) using yue clayton and jaccard dists
+# set an output dir for each class
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/stage)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.stage.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.stage.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.stage.design, class=stage)
+
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/treatment)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.treatment.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.treatment.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.treatment.design, class=treatment)
+
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA309354/output/rettingPeriod)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.rettingPeriod.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.rettingPeriod.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.rettingPeriod.design, class=rettingPeriod)
+

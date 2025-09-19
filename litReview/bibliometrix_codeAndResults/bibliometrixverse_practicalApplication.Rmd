@@ -1,0 +1,446 @@
+---
+title: "flaxRettingMetaomics_litReview"
+author: "Jakob Vucelic-Frick"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bibliometrix)
+library(tidyverse)
+library(vcd)
+library(treemap)
+library(stringr)
+library(igraph)
+library(ggraph)
+library(rvest)
+```
+
+
+# README: an Introduction
+
+The [*Biblioverse*](https://www.bibliometrix.org/home/index.php/layout/biblioverse) has a collection of packages designed to perform systematic analyses of research publications of interest. The main packages include *bibliometrix*, *dimensionsR*,*pubmedR*, and *openalexR*. They essensially serve as API services to acsess publication metadata from their respective databases. Refer to this [link](https://www.bibliometrix.org/vignettes/Introduction_to_bibliometrix.html) for an introduction to *bibliometrix*.
+This file will attempt to use the *Biblioverse* as a means to find relevant research pertaining to the microbiota associated with dew-retting flax, hemp, and other related plants. 
+Also, if a web-UI is more convenient, you can run *biblioshiny()* to access the shiny app. 
+
+
+# A Practical Application of the *Biblioverse*
+
+### [dimensionsR](http://github.com/massimoaria/dimensionsR)
+
+You will need to register with an institutional email to use their API. Refer to this [link](https://digital-science.ccgranttracker.com/login.aspx). After registration you'll then need to submit an application describing your project.
+
+```{r install_dimensionsR}
+#install.packages("dimensionsR")
+library(dimensionsR)
+```
+
+```{r}
+# with login info
+token <- dsAuth(username = "your_username", password = "your_password")
+
+## or temp API key 
+#token <- dsAuth(key = "your_apikey")
+
+# write the querey
+
+query <- dsQueryBuild(item = "publications", 
+                  words = "bibliometric*", 
+                  type = "article", 
+                  categories = "management", 
+                  start_year = 1980, end_year = 2020,
+                  output_fields = c("basics", "extras", "authors", "concepts"))
+                  
+#you will need to apply for use to get the credentials
+dsAuth(username = "<your username>", password = "<your password>")
+```
+
+
+### [pubmedR](https://github.com/massimoaria/pubmedR)
+
+```{r install_pubmedR}
+#install.packages("pubmedR")
+library(pubmedR)
+```
+
+The *pubmedR* workflow consists of 4 steps:
+1. Construct the query
+2. Check the validity of the query
+3. Download the documents' metadata
+4. Convert the metadata to a usable format
+
+Thankfully, the NCBI API system is free and allows users to make 3 queries a second or 10/sec if the user registers for an API key. To register for a key, use this [link](https://www.ncbi.nlm.nih.gov/account/) and access your account settings. You can also refer to this [PDF](https://cran.r-project.org/web/packages/pubmedR/pubmedR.pdf) for the package's documentation. 
+I found using this [page](https://pubmed.ncbi.nlm.nih.gov/advanced/) was helpful while constructing queries. It follows a pretty straightforward format, but it is helpful to see the options and their respective codes. This [link](https://pubmed.ncbi.nlm.nih.gov/help/) is also helpful for a full set of documentation (hint: ctrl+f and search "search field tags").
+
+```{r pubmedR_demo, eval=F}
+### 1) Generate credentials ###
+
+## if you have an API key, store it
+#api_key <- "your API key"
+
+# otherwise, set the key value to null
+api_key = NULL
+
+
+### 2) construct and test query ###
+
+## Construct the query
+
+query <- "bibliometric*[Title/Abstract] AND english[LA] AND Journal Article[PT] AND 2000:2020[DP]"
+
+# test the query
+res <- pmQueryTotalCount(query = query, api_key = api_key)
+
+#	The total number of records returned by the query
+res$total_count
+
+#The query translation by the NCBI Automatic Terms Translation system
+res$query_translation
+
+# The web history object. The NCBI provides search history features, which is useful for dealing with large lists of IDs or repeated searches.
+res$web_history
+
+### 3) download the collection of metadata ###
+
+# it is good practice to specify the total number of documents from the querey
+metaData <- pmApiRequest(query = query, limit = res$total_count, api_key = api_key)
+
+# The xml-structured list containing the bibliographic metadata collection downloaded from the PubMed database.
+mdData <- metaData$data
+
+# the original query
+mdQuery <- metaData$query
+
+# the query, translated by the NCBI Automatic Terms Translation system and submitted to the PubMed database.
+mdQueryTrans <- metaData$query_translation
+
+#the total number of records downloaded and stored in "data".
+mdRecordsDownloaded <- metaData$records_downloaded
+
+# the number of records matching the query (stored in the "query_translation" object").
+mdRecordsMatched <- metaData$total_counts
+
+
+### 4) convert to readable/useable format ###
+
+#default format is bibliometrix (for bibliometrix compatibility), if set to "raw" then it converts to a dataframe with no additional data handling 
+biblioForm <- pmApi2df(metaData, format="bibliometrix")
+dfMetadata <- pmApi2df(metaData, format="raw")
+
+
+M <- convert2df(metaData, dbsource = "pubmed", format = "api")
+
+results <- biblioAnalysis(M)
+
+# summary of the bibliometric analysis
+S <- summary(results)
+
+#plot of the results
+plot(x=results)
+topAU <- authorProdOverTime(M, k = 10, graph = TRUE)
+```
+
+```{r pubmedR_flaxApplication}
+### 1) Generate credentials ###
+api_key = NULL
+
+### 2) construct and test query ###
+
+## Construct the query
+#generalQuery <- "(flax[tiab] OR hemp[tiab] or rett*[tiab]) AND microb*[tiab] NOT (Rett syndrome[tiab])"
+
+# look for related plants (flax/hemp/kenaf) that involve microbiology analysis and not related to gut digestion, rett syndrome, bread, or milk
+specificQuery <- "((flax[tiab] OR hemp[tiab] OR kenaf[tiab] OR rett*[tiab]) AND (community[tiab] OR meta*bar*[tiab] OR meta*omic*[tiab] OR metaomic*[tiab] OR R16[tiab] OR R18[tiab] OR ITS[tiab]) AND microb*[tiab]) NOT (Rett syndrome[tiab] OR rumen[tiab] OR milk[tiab] OR bread[tiab] OR byssinosis[tiab] OR electrode[tiab] OR false flax[tiab] OR electrode[tiab])"
+
+# test the queries
+resSpec <- pmQueryTotalCount(query = specificQuery, api_key = api_key)
+resSpec$total_count
+
+
+### 3) download the collection of metadata ###
+
+# it is good practice to specify the total number of documents from the query
+specData <- pmApiRequest(query = specificQuery, limit = resSpec$total_count, api_key = api_key)
+
+
+### 4) convert to readable/useable format ###
+dfSpec <- convert2df(specData, dbsource = "pubmed", format = "api")
+specRes <- biblioAnalysis(dfSpec)
+
+# summary of the bibliometric analysis
+summaryRes <- summary(specRes)
+```
+
+
+```{r filterPubMedRes}
+dfSpec
+```
+
+
+
+
+# START AI CONTENT: CHAT GPT WAS USED TO GENERATE THE CODE BELOW
+```{r analysis}
+# Split authors into rows
+author_counts <- dfSpec %>%
+  separate_rows(AU, sep = ";") %>%     # Split the authors by ";"
+  mutate(AU = trimws(AU)) %>%     # Trim any whitespace
+  count(AU, name = "publications") %>%# Count the number of occurrences
+  filter(publications >1)
+
+# Plot
+ggplot(author_counts, aes(x = reorder(AU, -publications), y = publications)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Number of Publications per Author",
+       x = "Author",
+       y = "Number of Publications") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# keyword analysis
+df <- dfSpec[,c("ID","DE")]
+
+# Step 1: Merge both keyword columns
+df_keywords <- df %>%
+  unite("all_keywords", ID, DE, sep = ";") %>%           # Combine the two columns
+  mutate(all_keywords = str_replace_all(all_keywords, "^;+|;+$", ""),       # Remove leading/trailing semicolons
+         all_keywords = str_split(all_keywords, ";"))                  # Split into list of keywords
+
+# Step 2: Create co-occurrence pairs (if statement catches error caused by combn when there are less than 2 keywords)
+keyword_pairs <- df_keywords %>%
+  pull(all_keywords) %>%
+  lapply(function(kw) {
+    kw <- unique(trimws(kw))  # Clean and deduplicate
+    if (length(kw) >= 2) {
+      combn(kw, 2, simplify = FALSE)
+    } else {
+      NULL  # Skip rows with <2 keywords
+    }
+  }) %>%
+  unlist(recursive = FALSE) %>%
+  do.call(rbind, .) %>%
+  as.data.frame(stringsAsFactors = FALSE)
+
+colnames(keyword_pairs) <- c("from", "to")
+
+# Step 3: Count pair co-occurrences
+edges <- keyword_pairs %>%
+  group_by(from, to) %>%
+  summarise(weight = n(), .groups = "drop")
+
+# Step 4: Create graph and plot network
+graph <- graph_from_data_frame(edges, directed = FALSE)
+
+ggraph(graph, layout = "fr") +
+  geom_edge_link(aes(width = weight), edge_alpha = 0.5) +
+  geom_node_point(size = 5, color = "steelblue") +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() +
+  labs(title = "Keyword Co-occurrence Network")
+
+#note: i think the network layout is randomised so consider setting seed
+#also, there is probally a better way to show the network, maybe only doing the top keywords?
+
+#make table for treemap
+all_keywords_flat <- df_keywords %>%
+  unnest(all_keywords) %>%
+  mutate(keyword = trimws(all_keywords)) %>%
+  count(keyword, sort = TRUE)
+```
+# END AI CONTENT
+
+## Code Sourced from the [R Graph Gallery](https://r-graph-gallery.com/)
+```{r}
+dfCountries <- as.data.frame(table(dfSpec$SO_CO))
+colnames(dfCountries) <- c("Country", "Number of Publications")
+
+# treemap
+treemap(dfCountries,
+            index="Country",
+            vSize="Number of Publications",
+            type="index"
+            )
+
+#consider removing keywords with 1 occurrence
+treemap(all_keywords_flat,
+            index="keyword",
+            vSize="n",
+            type="index"
+            )
+
+
+# Most basic bubble plot
+dfSpec$PY <- as.Date(paste0(dfSpec$PY, "-01-01"))
+tbYears <- as.data.frame(table(dfSpec$PY))
+p <- ggplot(tbYears, aes(x=Var1, y=Freq)) +
+  geom_line(group=1) + 
+  xlab("Year")+
+  ylab("Number of Publications")+
+  ggtitle("Number of Publications Over Time")
+p
+```
+
+# Code to extract the abstract and doi to more readable format
+
+```{r writeAbstractsToHTML_pubMed}
+
+keyWords <- c("sourdough", "")
+
+
+# for each record, write the title, DOI, date, and abstract to html
+htmlText <- ""
+for (rec in 1:nrow(dfSpec)){
+  title <- str_to_title(substr(dfSpec[rec,"TI"],1,nchar(dfSpec[rec,"TI"])-1))
+  ab <- str_to_sentence(dfSpec[rec,"AB"])
+  py <- substr(dfSpec[rec,"PY"], 1,4)
+  doi <- dfSpec[rec,"DI"]
+  htmlText <- paste0(htmlText,"<h3>",title,": DOI-",doi," Year: ",py,"</h3>","<p>",ab,"</p>")
+}
+
+x <- read_lines("htmlTemplate.txt")
+# replace the text in the template
+htmlToWrite <- gsub("Insert List of Info", htmlText, x)
+
+#write to html file in wd
+htmlOutputFile<-file("listOfAbstracts_pubmed.html")
+writeLines(htmlToWrite, htmlOutputFile)
+close(htmlOutputFile)
+```
+
+
+### [openalexR](https://github.com/massimoaria/openalexR)
+
+```{r}
+#install.packages("openalexR")
+library(openalexR)
+```
+
+Open alex actually has some nice functionality. I plan on using it to filter the found publications for those containing specific terms that would indicate they have published data.
+
+#### I am unsure wether the query is doing what I want. It's a bit annoying to verify the entire thing, so I think I'll construct different queries and then combine the results
+
+Please refer to [this link for logical expressions ie)OR, NOT, AND](https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists) and this [link for other query filters (R specific) documentation](https://ropensci.github.io/openalexR/articles/Filters.html#works). To note: using multiples of the same filter argument may be tempting in order to make the function more readable, but it results in unwanted behavior. I understand it intuitively, but chatGPT does a better job at describing it: "multiple abstract.search: filters are applied independently and ANDed. OpenAlex likely evaluates each as a loose OR match, and requires each group to be matched somewhere in the abstract.Because these are separate filters, they're evaluated as distinct index hits, and only very few abstracts will match each abstract.search filters. This AND logic across filters is very strict."
+
+```{r openAlex_query, eval=FALSE}
+
+
+#makes the query "https://api.openalex.org/works?filter=abstract.search:(microbiota|microbiology|metagenomic|metabarcod|metabarcoding|community|R16|R18|ITS)+(flax|hemp|kenaf)+retting,fulltext.search:(EBI ENA|NCBI|EGA),is_retracted:false,type:journal-article|article"
+# openAlex_queryRes <- oa_fetch(
+#   entity = "works",
+#   abstract.search = "(microbiota|microbiology|metagenomic|metabarcode|metabarcoding|community|R16|R18|ITS)+(flax|hemp|kenaf)+retting",
+#   fulltext.search = "(EBI ENA|NCBI|EGA)",
+#   is_retracted = FALSE,
+#   type = c("journal-article", "article"),
+#   verbose = TRUE
+# )
+
+openAlex_queryRes <- oa_fetch(
+  entity = "works",
+  abstract.search = "(microbiota|microbiology|microbial|metagenomic|metabarcode|metabarcoding|community|R16|R18|ITS)+(flax|hemp|kenaf)+retting",
+  is_retracted = FALSE,
+  type = c("journal-article", "article"),
+  verbose = TRUE
+)
+
+openAlex_queryRes <- oa_fetch(
+  entity = "works",
+  abstract.search = "retting",
+  is_retracted = FALSE,
+  type = c("journal-article", "article", "review"),
+  verbose = TRUE
+)
+
+length(oa_request("https://api.openalex.org/works?filter=abstract.search:(microbiota|microbiology|metagenomic|metabarcod|metabarcoding|community|R16|R18|ITS)%2B,abstract.search:(flax|hemp|kenaf)%2B,abstract.search:(retting),fulltext.search:((EBI ENA)|NCBI|EGA),is_retracted:false,type:journal-article|article"))
+
+# makes the query "https://api.openalex.org/works?filter=abstract.search:microbiota|microbiology|metagenomic|metabarcod|metabarcoding|community|R16|R18|ITS,abstract.search:flax|hemp|kenaf,abstract.search:retting,fulltext.search:((EBI ENA)|NCBI|EGA),is_retracted:false,type:journal-article|article"
+# openAlex_queryRes <- oa_fetch(
+#   entity = "works",
+#   abstract.search = "microbiota|microbiology|metagenomic|metabarcod|metabarcoding|community|R16|R18|ITS",
+#   abstract.search = "flax|hemp|kenaf",
+#   abstract.search = "retting",
+#   fulltext.search = "((EBI ENA)|NCBI|EGA)",
+#   is_retracted = FALSE,
+#   type = c("journal-article", "article"),
+#   verbose = TRUE
+# )
+```
+
+```{r openAlex_filterResults}
+## it doesn't appear that this is a good approach
+# z <- works_from_dois[grepl("metatrans|metabar|metagen", works_from_dois$abstract, ignore.case = TRUE), ]
+# z <- z[grepl("flax|kenaf|hemp|retting", z$abstract, ignore.case = TRUE), ]
+
+# load and filter the results
+#save(openAlex_retting, file="openAlex_rettingRes.Rda")
+#load("openAlex_queryRes.Rda")
+
+#filter
+filteredWorks <- openAlex_queryRes[grepl("retting", openAlex_queryRes$abstract, ignore.case = TRUE), ]
+filteredWorks <- filteredWorks[!grepl("milk|THC|cannabinoid", filteredWorks$abstract, ignore.case = TRUE), ]
+
+filteredWorks <- filteredWorks[!grepl("gut|rumen|fecal|dietary|bumble bee|honey bee", filteredWorks$title, ignore.case = TRUE), ]
+filteredWorks <- filteredWorks[!grepl("HemP", filteredWorks$title, ignore.case = FALSE), ]
+
+
+
+ribosomeDNA <- filteredWorks[grepl("R16|R18|\\sITS\\s", filteredWorks$abstract, ignore.case = FALSE), ]
+metaomics <- filteredWorks[grepl("metagen|metabar|metatrans", filteredWorks$abstract, ignore.case = TRUE), ]
+filteredWorks <- rbind(ribosomeDNA, metaomics)
+
+filteredWorks <- filteredWorks[!grepl("larval|larve|plant genome", filteredWorks$abstract, ignore.case = TRUE), ]
+filteredWorks <- filter(filteredWorks, !(source_display_name %in%  c("Viruses", "BMC Veterinary Research", "Insects")))
+
+```
+
+
+```{r}
+#process and merge both queries
+sharedDois <- (openAlex_queryRes[openAlex_queryRes$doi %in% openAlex_retting$doi,])
+
+z <- openAlex_queryRes
+openAlex_retting <- z
+
+x <- oa_fetch(
+  entity = "works",
+  doi = c(
+    "10.1007/s00253-024-13323-y"
+  ))
+
+z <- openAlex_retting[grepl("10.3390", openAlex_queryRes$doi, ignore.case = TRUE), ]
+
+nrow(openAlex_queryRes[openAlex_queryRes$doi %in% openAlex_retting$doi,])
+```
+
+
+```{r writeToHTML_openAlex}
+# for each record, write the title, DOI, date, and abstract to html
+htmlText <- ""
+for (rec in 1:nrow(filteredWorks)){
+  title <- filteredWorks[rec,"title"]
+  ab <- filteredWorks[rec,"abstract"]
+  py <- filteredWorks[rec,"publication_year"]
+  doi <- filteredWorks[rec,"doi"]
+  htmlText <- paste0(htmlText,"<h3>",title,": DOI-",doi," Year: ",py,"</h3>","<p>",ab,"</p>")
+}
+
+x <- read_lines("htmlTemplate.txt")
+# replace the text in the template
+htmlToWrite <- gsub("Insert List of Info", htmlText, x)
+
+#write to html file in wd
+htmlOutputFile<-file("listOfAbstracts.html")
+writeLines(htmlToWrite, htmlOutputFile)
+close(htmlOutputFile)
+```
+
+
+
+
+
+# Citations (thank God for all the smart people)
+
+Aria, M. & Cuccurullo, C. (2017) bibliometrix: An R-tool for comprehensive science mapping analysis, Journal of Informetrics, 11(4), pp 959-975, Elsevier.
+                                  
+Aria, M., Le T., Cuccurullo, C., Belfiore, A. & Choe, J. (2024), openalexR: An R-Tool for Collecting Bibliometric Data from OpenAlex, The R Journal, 15(4), 167-180, DOI: https://doi.org/10.32614/RJ-2023-089.

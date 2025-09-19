@@ -1,0 +1,202 @@
+---
+title: "The Bacterial Communites Associated with Retting: a Meta-Analysis"
+author: "By: qsfl69"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    number_sections: false
+    toc: true
+    toc_depth: 2
+bibliography: references_4.json
+csl: https://www.zotero.org/styles/nature
+link-citations: true
+header-includes:
+  - \usepackage{graphicx}
+  - \setkeys{Gin}{width=\linewidth,keepaspectratio}
+  - \usepackage{setspace}
+  - \onehalfspacing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(tidyr)
+library(stringr)
+
+
+metaGenomeSum <- read.delim(file = "./metagenomicStudies_litReview.tsv", sep="\t")
+
+colnames(metaGenomeSum) <- c("Crop", "Source Country", "Year", "Retting Type",
+                             "Raw Reads", "Marker(s)", "Data Availability and Accession",
+                             "DOI", "Selected")
+
+#metaGenomeSum$`Data Availability and Accession` <- str_wrap(metaGenomeSum$`Data Availability and Accession`, width = 30)
+
+
+#make styled table
+litReviewTbl <- metaGenomeSum %>%
+  kbl(caption = "Studies that Performed Amplicon Sequencing", align = "lccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE,
+                latex_options = "scale_down",
+                font_size = 14) %>%
+  column_spec(7, width = "10em") %>%
+  column_spec(2, width = "4.5em") %>%
+  column_spec(4, width = "3em") %>%
+  column_spec(5, width = "2.3em") %>%
+  collapse_rows(columns = 1, valign = "top")
+
+```
+
+```{r }
+primerInfo <- read.delim(file = "./primerInformation.tsv", sep="\t")
+
+
+colnames(primerInfo) <- c("Study Accession", "Forward Primer", "Reverse Primer", "Region")
+
+#make styled table
+primerTbl <- primerInfo %>%
+  kbl(caption = "Primer and 16S Region Summary", align = "lccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = FALSE,
+                latex_options = "scale_down",
+                font_size = 14)
+```
+
+# Background
+
+    The textile industry has changed greatly since the advent of polymer chemistry. Natural fibres like flax, kenaf, hemp, and jute, once some of the only material options, now constitute only 5% of global fibre production—with cotton comprising 20%.[@RHNU6HMW] This shift in fabric preference cannot be ignored as domestic laundering releases an annual 5 million tons of microplastic fibre into the environment.[@7WQLN2VC] Moreover, the production of synthetic fibres consumes \~98 million tons of oil annually, and releases far more greenhouse gas emissions when compared to the production of natural fibres.[@EG5RWCX6] Thus, there exists a need to reconsider the value of natural, sustainable fibres as a useful material.\
+    The translation of flax’s scientific name—“linen most useful”—or jute’s colloquial title, the “golden fibre”, emphasizes the popularity of natural fibres throughout history.[@KKGHX959; @ISZHIMXX] Crops like flax, jute, kenaf, and hemp have been used to produce clothing for millennia.[@KKGHX959] But, today, flax fibres account for only 0.4% of global clothing fibre production.[@Z47UZULX] Pressure from increased amounts of inexpensive but resource intensive cotton and the emergence of synthetic materials have contributed to this dramatic reduction in flax, hemp, kenaf, and jute markets.[@73NLRTKI; @Z47UZULX; @ISZHIMXX; @X85BIW8L; @BYQPSBT9] Producing strong, homogeneous fibres on an industrial scale is also challenging, which makes the use of synthetic fibres even more attractive.[@KKGHX959] The challenges associated with processing natural fibres in a consistent manner, then, must be overcome to make their adoption commercially viable.\
+    A major problem with natural fibre processing is that of retting, in which a plant’s bast fibres are separated from other, non-fibrous tissues.[@IPT9GMW2] Typically, retting uses microorganisms to degrade pectins, hemicelluloses, and other matrix polysaccharides which cement plant fibres to their stalk; some more recent retting techniques involve the application of enzymes and other additives to enhance retting efficiency.[@37R6AKQD;@KKGHX959] Retting is performed in one of two ways. The oldest practice—known as dew or field retting—gathers harvested stems into piles and allows the local bacteria and fungi to naturally decompose the non-fibrous tissues.[@KKGHX959] The second form—water-retting—submerges the harvested plant material in bodies of water for the duration of the retting period. These two forms of retting result in fibres of different quality, with water-retting producing longer, stronger fibres suitable for textile production in relatively little time.[@KKGHX959] The diminished and inconsistent quality of dew-retted fibres can be largely attributed to the fact that the process is dependent on variable weather conditions, farmer experience, and because the fibres are dirtied by soil and fungi.[@KKGHX959; @9LN5WHUQ] Additionally, dew-retting is only feasible in locations with adequate humidities and temperatures, restricitng the number of regions capable of dew-retting.[@KKGHX959] Despite these limitations, dew-retting has been the primary form of retting since the 1950’s due to the expense, stench, and pollution involved with water-retting.[@NM689MMN; @IL52ZKEI] Thus, natural fibres have seen a decline in quality over the past 60 years.[@IL52ZKEI] In essence, the commercial adoption of natural fibres is limited by the poor efficacy of dew-retting which, in turn, limits their production to a few regions with amicable climates.[@KKGHX959]\
+    Owing to a variety of factors—ranging from poor fibre quality, expensive consumption of land, and restrictive climates—it is unlikely that dew-retted fibres can meet global textile demand. However, natural fibre products can be used for purposes that do not necessitate the same quality demanded by clothing production. It has been shown that natural fibres and their waste products can serve as versatile biocomposites, sustainable feedstocks for aromatic compounds, and a source of activated carbon well suited for heavy metal absorption.[@RF75CYYL; @FQEEP5CJ; @B9DQDZ6C; @GM8GKSLR] Even though dew-retting results in one-third of harvests not reaching textile grade quality, the process can still degum crops to an extent suitable for other commercially relevant, and sustainable, functions.[@GM8GKSLR; @KKGHX959] However, while the chemical and structural changes of fibrous corps during retting are well studied, the microbial communities responsible are still not fully understood.[@FABT49XR; @H3UA3SM5; @T4X8TM4B] Because microorganisms are responsible for the retting process, it is important to investigate the microbiota of retting crops. Specifically, understanding which microbe-derived Carbohydrate-Active enZYmes (CAZy) are produced at different stages of retting is valuable because of their principal role in retting. In addition to the functional profiles of retting communities, an examination of their phylogenetic profiles and primary members provides context for what factors contribute to successful retting conditions.[@BKIHF48Y]\
+    Historically, microbiome research has depended on culture-based techniques that generally do not capture the dynamic nature of evolving microbial communities, being limited to a small percentage of culturable taxa.[@BKIHF48Y] Developments in highthroughput sequencing (HTS) techniques, like *metabarcoding*, have allowed researchers to characterize microbial communities with high sensitivity and specificity.[@K6FV3BXP] In contrast with traditional DNA barcoding, which is designed to identify individual specimens within a community, metabarcoding interrogates the entirety of a community’s diversity.[@HT6232HH] It does so by amplifying specific genetic elements that vary between species but are flanked by conserved regions that can be used as universal sites for PCR primers.[@2D3X7IPV] After amplifying the selected regions, the resulting amplicons can be used to calculate abundances of different taxa in a sample. The 16S and 18S/ITS regions of the rRNA genes are commonly used as markers for the identification of bacterial and fungal organisms, respectively.[@2D3X7IPV] Specifically, the V4-V6 sub-regions of the 16S rRNA gene provide ideal taxonomic resolution while both the ITS1 and ITS2 sub-regions have been shown to produce comparable results.[@RVC996GW; @E2V4RN2Y] The method used to characterise a community’s constituents using these barcoding regions is known as *targeted metagenomics*.[@BKIHF48Y] While potnentially powerful, metabarcoding experiments are prone to bias and their results must be understood in the context of the provided—and unprovided—data.\
+    The report presented here seeks to provide a meta-analysis of targeted metagenomic experiments that study the microbiota of retting flax, hemp, kenaf, and jute. The aims of this review are to compare the retting process between different species and treatments while surveying the amount of available data. This will both improve how retting is understood at a functional and community level, while assessing the field's current state. A synthetic aim of this study is to gauge how metabarcoding experiments and their data are reported to provide guidance for future research guidelines. The results presented here will hopefully accelerate the adoption of natural fibres for industrial and textile uses by uncovering the functions and taxonomies of retting communities and providing guidance for future studies. Ultimately, this review aims to improve the efficiency of retting by pooling the results of metabarcoding experiments that analysed the retting process with a variety of crops and treatments.
+
+# Methods
+
+### Systems:
+
+    All methods described below were performed using Durham University’s Hamilton supercomputer utilizing Rocky Linux (v.8.10).[@2UXMNMVP] Sequence processing and classification was done using mothur.[@J6RKG7ZS] Metagenomic predictions utilized PICRUSt2.[@TLLIE2BJ] Output files from both softwares were prepared and ploted in RStudio (v.2025.05.1).[@9CV2RT7L] All scripts used for the data analysis pipeline are stored in a public GitHub repository.[@FENDX3F6]
+
+### Literature Review
+
+    A systematic literature review was conducted to identify publications that examine the microbiology of retting. This approach was chosen in order to better understand the status of retting research and select sources of amplicon sequencing data.\
+    The PubMed and OpenAlex databases were queried for journal articles, articles, and reviews containing specific key words. The queries were performed in RStudio using the openalexR (v.2.0.1) and pubmedR (v.0.0.3) packages.[@K8FSFRTS; @N8EISI9C; @9CV2RT7L] The databases were searched for publications containing the term “retting” in their title or abstract on August 4, 2025. After removing duplicates (n=74) the resulting 6002 publications were filtered in RStudio. First, publications with notable authors such as *Law*, *Djemiel*, *Grec*, *Akin*, *Fuller*, *Norman*, *Ribeiro*, *Liu* *M.*, *Orm*, *Brown*, *Sharma*, *Henriksson*, and *Fila* were extracted.[@FABT49XR] Publications with titles containing “MICROBIOLOGY OF RETTING” were also selected as papers of interest. The publications were then filtered on the basis of containing the words *hemp*, *flax*, *jute*, *kenaf*, or *bast* and *rDNA*, *16S*, *18S*, *fungus*, *fungi*, *fungal*, *metabar*, *meta-bar*, *metagen*, *microb*, or *community* in their title or abstract. Off-target results containing the words *Rettt syndrome*, *autism*, *Sindrome* *de* *Rett*, *Vascular* *Responsiveness*, *banana*, and *pigs* were removed. The remaining 129 publications were then manually evaluated for their data availability and utility to the present study. Each step of the review was performed by a single reviewer using R software. A flow diagram detailing this literature review process was produced following the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) guidelines using the R package PRISMA2020 and is presented in Figure 1.[@2B5GQMCI] A full list of the selected publications is also provided (Supplementary Table 1). The database queries were filtered in this way to ensure all papers concerning retting were selected. The additional search terms were chosen due to their associations with targeted metagenomics and microbial retting.\
+    The final set of publications identified by the literature review contained a selection of reviews (n=5) and studies (n=27) focusing on the microbial communities involved with retting. In addition to procuring a set of publications that largely describe the state of retting research, this literature review also sought to find viable sources of amplicon sequencing data. Of the 27 studies, 13 performed some type of amplicon sequencing targeting bacteria or fungi using kenaf (n=2), jute (n=2), hemp (n=6), and flax (n=3). A summary of these potential data sources is provided in Table 1.\
+    Upon inspecting the data sources, both jute related studies and three hemp studies did not provide raw sequencing data: only publishing specific sequences as OTUs to NCBI’s GenBank. Another hemp study was eliminated due to its use of single-end Nanopore reads which would bias and confuse results by producing noise due to poor sequence quality.[@NGT92LLB] Two other hemp studies were eliminated because their data was not accessible. One reported that the data was available upon request, and the second reported the data was available under a BioProject accession, PRJNA1124099, that did not link to any publicly available data. Neither corresponding author responded to request. Additionally, a kenaf study was excluded because its data was lost on the MG-RAST server and was reportedly not able to be recovered locally.[@2JJC9HPI] Thus, the literature review process led to data being selected from five studies that performed targeted metagenomics on samples from flax dew-retting (n=2), flax water-retting (n=1), hemp dew-retting (n=1), and kenaf water-retting (n=1).
+
+```{r PRISMA_flowDiag, echo=FALSE, results='asis'}
+cat('
+\\newpage
+\\begin{figure}[H]
+  \\centering
+  \\includegraphics[width=0.87\\textwidth]{figures/PRISMA2020_Flowdiagram_best_2.png}
+\\end{figure}
+')
+```
+
+**Figure 1:** A Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) flow diagram detailing the steps involved with the literature review\
+
+```{r litReviewTable, echo=FALSE, results='asis'}
+litReviewTbl %>%
+  kableExtra::kable_styling(latex_options = c("hold_position", "striped", "scale_down"))
+```
+
+### Data Collection:
+
+    After performing the literature review, five papers were chosen that published raw sequencing data. The fasterq-dump tool from NCBI’s SRA Toolkit was used to download FASTQ files from each selected accession from Table 2.[@3V7SXD4E] Because some experiments took soil and stem samples, focusing on both the ITS and 16S regions, it was decided for consistency’s sake to limit the current study to sequences that target the 16S region from plant stem samples. Metadata describing each sample was manually curated from the published reports and are available in the provided GitHub repository. Seven metrics were used: stage of retting, retting period, whether the retting swath was turned, species type, cultivar (plant variety), retting method (water/dew), and treatment. The stage of retting was classified as either “early”, “middle”, or “late”. Samples' stages were labelled according to the reported retting period and other observations from their respective studies. All treatment types were identified according to what was published and include: standard harvest, late harvest, low moisture, high moisture, high moisture with soil slurry (hereafter referred to as "Soil Slurry"), and bacterial inoculation.\
+    Each study was investigated to identify the primers and 16S regions used in their respective experiments; summarized in Table 2. Four experiments specified the 16S region targeted, three of which also specified the primers. One study did not report the primers or the targeted region used.
+
+```{r}
+primerTbl %>%
+  kableExtra::kable_styling(latex_options = c("hold_position", "striped", "scale_down"))
+```
+
+### Bioinformatic Methods: Sequence Processing
+
+    Community analysis and taxonomic classification was performed using mothur's MiSeq SOP (v.1.48.3), processing each experiment separately.[@J6RKG7ZS; @5ATTNBW3] Paired-end FASTQ files from the selected studies were overlapped to form contiguous reads with a quality score threshold of 30, maximum homopolymer length of 8 bp, an overlap of at least 30 bp, and an additional screen to ensure there were no differences between the known primers and their respective sequences. Specifying the primers used with the sequences from accession PRJNA309354 failed to produce viable contigs, but removing them from the pipeline’s parameters fixed this behaviour. The following characteristics were also used to vet sequences: ambiguous bases, mismatches, a minimum/maximum length of 300/500 bp for the V3-V4 and V4-V5 regions, and a maximum length of 275 bp for the V4 region.[@EK79FJP9; @5ATTNBW3] Sequences that targeted unknown regions were not screened for length. The sequences were then aligned to a SILVA (v.138.2) reference database customized for the appropriate region.[@F5IGKMD6; @MEFJGCXH] If no region was specified, then alignment proceeded with the original SILVA database. At this point, the accession PRJNA850647 was removed from this study due to its sequences having an average alignment length of 15 and an average start/end position of 23897/23975—likely targeting the V9 region. Moreover, the samples were sequenced with Illumina’s NovaSeq platform—as opposed to the other experiments using Illumina MiSeq—and were too large for mothur to process with reasonable memory requirements (64 gigabytes of RAM with 128 processors).
+
+### Bioinformatic Methods: Community Analysis
+
+    When the sequences were sufficiently cleaned, they were ready to be classified into operational taxonomic units (OTUs) and subjected to community analysis. As recommended, a pre-clustering of the sequences was performed to reduce the number of erroneous reads. To account for sequencing errors and differences in read length, two mismatches were tolerated for experiments using the shorter V4 region and four differences were allowed for the longer V3-V4 and V4-V5 regions.[@F5IGKMD6] Next, chimeras that originated from amplification errors during PCR were detected by abundance and removed *de novo* using the UCHIME (v.4.2) algorithm.[@SJBEH3S9; @4RNVHXPZ] Sequences were then classified with a Bayesian classifier using the Ribosomal Database Project’s reference set.[@2CWFJ5HY] Because each experiment used in this study targeted the bacterial rRNA gene, OTUs with lineages of Archaea, chloroplast, mitochondria, Eukaryota, or unknown, were removed.[@SKCJFKJT] Clustering of the aligned, non-chimeric sequences into OTUs was performed *de novo* using a column-formatted distance matrix with the OptiClust algorithm set at a 3% dissimilarity cut-off until complete convergence of the Matthews correlation coefficient.[@NG46KXN3] The sequence with the smallest maximum distance between other sequences within an OTU was selected to be representative of that OTU.\
+   To normalize sequencing depth across samples, all datasets were rarefied to the size of the smallest library prior to diversity analyses. Alpha diversity, which describes the richness and evenness of microbial communities within individual samples, was assessed using the Chao1 estimator, Heip’s evenness index, Shannon's diversity index, and the inverse Simpson's index. Community coverage—the extent to which sampling captured a sample's microbial diversity—was estimated using Good’s coverage estimator and confirmed with rarefaction curves. Differences in alpha diversity between treatment groups were tested using the Mann-Whitney-Wilcoxon test. Treatment groups with fewer than seven samples were pooled to improve statistical power.
+
+   Beta diversity, which reflects differences in community composition between samples in the same experiment, was analyzed using non-parametric analysis of molecular variance (AMOVA) based on the Yue and Clayton theta similarity coefficient. To identify taxa that significantly distinguished experimental groups, Linear Discriminant Analysis Effect Size (LEfSe) was applied. To note, the LEfSe function in mothur (v.1.48.3) can not handle more than two experimental subgroups, so an older version (v.13.7.3 ) was used for the LEfSe step in the pipeline.\
+    Graphs of the alpha-diversity metrics over time and a heatmap of the LEfSe results were generated in R (Figures 2, 3; Supplementary Figures 1-17).
+
+```{r examplealphaDivPlot, echo=FALSE, fig.align='center', out.height="60%", out.width="100%"}
+knitr::include_graphics("./figures/PRJNA494847/alphaDivPlots/chao_PRJNA494847.png")
+```
+
+**Figure 2:** An example plot of the Chao1 estimator for each week of retting coloured by cultivar (plant variety). The dashed vertical lines indicate when the swath was turned. The dotted line represents a smoothed line showing overall trends in richness over time.
+
+```{r lefse-heatmap, echo=FALSE, fig.align='center', out.height="105%", out.width="115%"}
+knitr::include_graphics("figures/lefseHeatmap_top25LDA.pdf")
+```
+
+**Figure 3:** A heatmap of the genera with the 15 largest effect scores, on average across all experiments. If the same genus was discriminant for a specific subgroup between two experiments it is marked with a circle. Those genera discriminant across three intra-experimental subgroups are marked with a triangle."
+
+### Bioinformatic Methods: PICRUSt2
+
+    A pipeline was developed using PICRUSt2 (v.2.6.2) to predict the functional composition of each experiment’s samples.[@TLLIE2BJ] In brief, the pipeline involves three main steps: phylogenetic placement of reads, prediction of gene families per OTU, and pathway inference.[@BETLCW59; @TTNINK9C; @QIN5TNKF; @3BQ89HIZ; @25V37HLX; @U3T5UNK2] Essentially, the metobolic potential of a community can be predicted. The representative sequences for each sample’s OTUs and their abundances were converted to BIOM formatted count tables and submitted to PICRUSt2. The count tables were denoised by retaining only OTUs that had relative abundances of at least 0.05% in a single experimental sample.[@9VPMQNUV] The accuracy of PICRUSt2’s metagenome predictions was controlled by measuring the weighted Nearest Sequenced Taxon Index (NSTI) with a cutoff of 2. An expertly curated list of CAZy families associated with the degumming process was then used to focus on the most relevant parts of the metagenome for this study.[@9VPMQNUV] Mothur's taxonomic assignments for each sample's OTUs were also merged with the PICRUSt2 output for downstream analysis.\
+    After determining the functional profiles of the experiments’ samples, the functional abundances for each CAZy family in a sample were normalized to relative abundances to allow for meaningful comparisons between samples. Principal component analysis (PCA) was then conducted for each experiment to reduce the dimensionality of the data and to identify patterens of variation between treatment groups, turning statuses, and retting stages (Supplementary Figures 18-21). This unsupervised approach enabled the visualisation of how subgroups cluster across experiments (Figure 4). To parody this global view with statistical comparisons, differential abundance analysis (DAA) was applied to the raw, unnormalized abundance counts of CAZy families for each experiment. This analysis aimed to identify specific functions that were significantly enriched or depleted for any subgroup, including: treatment type, turned status, plant type, retting type, and retting stage. Four DAA methods—DESeq2 (v.1.48.2), edgeR (v.4.6.3), MaAsLin2 (v.1.22), and ALDEx2 (v.1.40.0)—were used to improve robustness and reduce method-specific bias. CAZy families that were identified as differentially abundant by at least two of these methods within any subgroup were retained for downstream analysis.\
+    A final analysis was conducted that compared how different genera contribute to the metagenome. This began by determining the total functional abundances for cellulose, hemicelluloses, and pectin within a sample. If a sample had replicates they were combined. The abundances of each genus were then normalized by finding their relative abundance in respect to each substrate. Only the top 10 genera for each substrate were retained for visualisation. Bar graphs were plotted to illustrate genus/function trends over time and between treatments (Figures 5; Supplementary Figures 22-31).
+
+```{r examplePCAPlot, echo=FALSE, fig.align='center', out.height="60%", out.width="100%"}
+knitr::include_graphics("figures/PRJNA494847/PCA_ofCAZy_byTreatment_PRJNA494847.png")
+```
+
+**Figure 4:** An example of a Principal Component Analysis (PCA) plot from the of predicted metagenomes of a retting experiment. Shapes denote the stage of retting and color describes the turning status. Because the PCA was performed globally for each experiment, each graph in the facet can be directly compared.
+
+```{r exampleSubstrateFunctionPlot, echo=FALSE, fig.align='center', out.height="90%", out.width="115%"}
+knitr::include_graphics("figures/PRJNA494847/plot_Pectin_Felina_32_PRJNA494847.png")
+```
+
+**Figure 5:** An example stacked bar chart describing how genera contribute to the functional potential of retting communities over time and under different conditions. The x-axis provides the retting period and the y-axis details the relative abundance of the respective genera. Genera marked with "\*" could only be classified by family using mothur.
+
+# Results and Disscusion
+
+### Literature Review
+
+    The literature review accomplished two goals. It produced a selection of publications that describe the current state of retting research, specifically focused on the microbial communities involved in the retting process. Additionally, it provided a pool of sequencing data that can be used to compare the retting of various fibres under different conditions. It should be noted that every study identified in this review focused on the retting of a single fibrous crop which makes this report the first to compare bacterial communities between retting experiments. It is important to acknowledge that this review may not have surveyed all the relevant research pertaining to the microbiology of retting. While the systematic process presented here is transparent and repeatable, there is no guarantee that the databases queried, or the queries themselves, captured the totality of metabarcoding experiments involving retting. Additionally, this review provides an overview of retting research at a single point in time, and similar reviews in the future may have different results.
+
+### Overall Data Quality:
+
+    After vetting potential data sources, it was found that \~38% of the experiments did not provide raw sequence reads necessary for the comparative study presented in this report. An additional \~23% referenced data that is private or inaccessible. Of the available data, five experiments were chosen for analysis that published raw reads for: flax field retting (n=2), hemp field retting (n=1), flax water-retting (n=1), and kenaf water-retting (n=1). Among these experiments 60% specified the primers used, 80% reported the target region, and only 20% provided replicate samples (Table 2). No experiments included mock communities in their designs; which, combined with the general absence of replicates, severely undermines the usefulness of the data.[@9YQVMKCQ] All figures exhibted in this report were generated from the experiment that used replicates and used three cultivar types for each treatment (BioProject accession: PRJNA494847). After aligning to to SILVA database, it was found that the sequences from the kenaf study were unusable and the experiment was dropped.
+
+    The sequence filtering steps in mothur were not analysed. However, it would be valuable to determine if different experiments or subgroups have higher rates of chimeras or mismatched sequences.
+
+### Alpha-Diversity:
+
+   All experiments had an average Good's covererage value of 98% with the lowest score being 87%. In terms of differences in alpha-diversity, only samples from BioProject accession PRJNA494847 had any statistically significant results. In general, the inverse Simpson's index is lower during the early stages than when it is turned (p \< 0.05). The Shannon's index was also elevated for samples in the middle of retting compared to early or late samples (p \< 0.05). In regards to treatment groups, each treatment had statistically significant differences in their Heip's measure of evenness and Chao1 scores (Supplementary Table 1). Also, as seen in Figure 1, apparent outliers do exist within experiments. For this reason, it is important that studies provide replicates in order to understand whether differences in community structure are real or the result of sampling bias.
+
+### Beta-Diversity:
+
+    The AMOVA results showed that the bacterial community structure of different intra-experiemental subgroups is statistically different for three of the experiments (Supplementary Table 2). Expectantly, samples from different retting periods, stages, and turned statuses have distinct community structures (p \< 0.05). Additionally, the water-retting treatment group that was inoculated with a strain of pectnolytic bacteria proved to have a statistically different bacterial structure (p \< 0.05). Notably, the experiment with BioProject accession PRJEB27872 did not yield any significant results from AMOVA, likely limited by its small sample size (n=7).
+
+    Interestingly, LEfSe showed that retting community subgroups do partly resemble each other. Figure 1 shows that nine out of the top 15 genera with the highest average effect size distinguish the same subgroup between different experiments. Specifically. the genera *Flavobacterium, Pedobacterium,* and the family *Rhizobiaceae* are shown to be distinguishing markers  of dew-retted swaths in the late stage of retting. To note, Figure 1 does not show all the distinguishing taxa and the data could be used to find more similarities between experimental subgroups; thereby acting as an indicator of retting the retting process.
+
+### Predictive Metagenomics:
+
+    It is important to acknowledge the limitations of using PICRUSt2 to predict the metagenomes of a community. Generally, this method is not advisable because the results can very easily be skewed by the abundances of different taxa.[@4P34FCWD] However, some interesting results were found. First, one experiment reported finding 60 CAZy families within their sample, but the pipeline presented here only found 16.[@9VPMQNUV] This is most likely due to the fact that fungal communities were excluded from the presen\`t study. Additionally, the PCA plots—an example of which is provided in Figure 4—generally show that the metagenomes of samples at different stages of retting get increasingly more variable. Lastly, Figure 5 demonstrates a common trend within the functional abundances of bacterial communities in that \~70% of each samples' functional abundances for a substrate—pectin, cellulose, hemicellulose—can be attributed to \~10 genera or families. However, this finding could be skewed as the most functionally abundant genera were also the most abundant OTUs.
+
+    All 16 of the CAZy families identified from the selected list of families were found to be deferentially expressed in at least one of the following subgroups: treatment, stage, plant, turned status, or retting type. The sign of these changes was not able to be interrogated.
+
+# Conclusion
+
+    Bias and error are inherent to each step of metabarcoding experiments. Excluding the confounding effects that plauge all bioinformatic analyses, there are many reasons why targeted metagenomic data can be misleading. Beginning with sample collection, samples may not be representative of heterogenous environments, and variations in their biomass could inflate abundances of certain species while minimizing others.[@YPHQ33TV; @V9GTA5L5] Secondly, DNA extraction methods have been shown to have a differential impact on molecular analyses of microbial communities.[@H3UA3SM5] The amplification stage also produces variable results owing to: variable amplification rates, primer bias, the PCR protocol used, variations in thermocycler calibrations, reagent concentrations, batch effects, the presence of PCR inhibitors, and PCR errors such as polymorphisms, chimeras, and polymerase misincorporations.[@CZBS4RIU; @RGT24TFI; @IE6NUQN3; @8P6FS3UJ; @IFGJFE7H] Additionally, sequencing platforms result in different error profiles and bioinformatic pipelines yield different results.[@AHN3TL8J; @H3BZ5XY3] The choice of barcoding region also effects error rates. Notably, the shorter V4 region produces significantly less spurious OTUs compared to the longer V3-V4 or V4-V5 regions because incomplete overlapping regions can result in spurious OTUs.[@T3A5CPJY] Mock communities, sequenced alongside experimental groups, can help qualify the quality of metabarcoding data, but this practice is not yet routine among microbiome researchers.[@ZVJBXC99; @JG3SJMWX] Despite the limitations of targeted metagenomics, the technique offers unparalleled insights into the structure and evolution of microbial communities. And, while the extent of metabarcoding’s quantitative ability is debated, its results are generally proportionate to the underlying community members.[@V9GTA5L5] However, studies would benefit from the inclusion of mock communities and following more comprehensive reporting standards.[@9YQVMKCQ]
+
+    Due to the small sample sizes of most experiments, the meta-analysis presented here can only speculate as to the nature of bacterial retting communities. Some interesting trends can be observed, such as all samples having \>70% of their relevant metagenomic potentials being explained by only a few genera; and that the predicted metagenomes of retting communities generally change over time. An additional finding is that LEfSe revealed that all three dew-retting experiments—for hemp and flax regardless of treatment group—had the same distinguishing genera/families in the late stage of retting. This could be a useful indicator for gauging the progress of retting.
+
+    This study is admittedly quite limited. In addition to being exploratory in nature, these results are based on data that are hard to compare directly. Moreover, it only focused on bacterial communities. It has been shown that fungal populations are crucial for successful dew-retting, and including ITS sequences in this pipeline would provide important context about the microbiology of retting.[@T4X8TM4B] In general, however, the integrity of future targeted metagenomic experiments would benefit from using replicates, mock communities, and carefully selected regions in their designs.
+
+\newpage
+
+# **References**

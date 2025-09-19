@@ -1,0 +1,373 @@
+---
+title: "mothur pre-process"
+author: "Jakob Vucelic-Frick"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(phylotools)
+library(biomformat)
+```
+
+## Read in Final FASTA File
+
+```{r funxUsedToProcess_mothurFiles}
+#function to select abundant seqs
+selectAbundantSeqs <- function(sample, abundCutoff){
+  #determine the number of reads in the sample
+  nReads <- sum(sample[,2])
+
+  # determine relative abundance and return those above threshold
+  relAbundance <- sample[,2]/nReads
+  sample <- cbind(sample, relAbundance)
+  colnames(sample)[3] <- "relAbund"
+  return(sample[sample$relAbund >= abundCutoff,])
+}
+
+#function to process shared files
+filterSharedFile <- function(sharedFile, minRelAbund, seqType){
+  # find each ASC/OTU's count, calc relative abundance, and filter those < 1% abundance 
+  sharedFile <- pivot_longer(sharedFile, cols=starts_with(seqType))
+  sharedFile <- pivot_wider(sharedFile, names_from = "Group")
+  
+  #find indcies of singletons and non singletons and extract from df
+  nonSingleton <- c()
+  singleton <- c()
+  for (i in 1:nrow(sharedFile)){
+    if ((length(which(sharedFile[i,4:ncol(sharedFile)] == 0)) == (length(4:ncol(sharedFile)) -  1)) &
+        (length(which(sharedFile[i,4:ncol(sharedFile)] == 1)) == 1)){
+      singleton <- append(singleton, i)
+    }
+    else {
+      nonSingleton <- append(nonSingleton, i)
+    }
+  }
+  singletonAndNonSingletons <- list(nonSingletons = sharedFile[nonSingleton,], 
+                                    singletons = sharedFile[singleton,])
+  
+  #extract a list of ASVs/OTUs from each sample based on abundance cutoff
+  
+  sampleSeqs <- list()
+  for (i in 4:ncol(sharedFile)){
+    #pass ASV/OTU IDs and the sample's reads
+    selectedSeqs <- selectAbundantSeqs(sharedFile[nonSingleton,c(3,i)], minRelAbund)
+    sampleSeqs[[colnames(sharedFile)[i]]] <- list(seqs = selectedSeqs, totalCoverage = sum(selectedSeqs$relAbund))
+  }
+  
+  sampleSeqs$rawData <- singletonAndNonSingletons
+  #to test !!!
+  return(sampleSeqs)
+}
+
+#function to write fasta to file
+writeFasta <- function(dfFasta, outputFileName){
+  cat(paste0(">",dfFasta$seq.name[1], "\n", dfFasta$seq.text[1]), 
+    file=outputFileName, append=FALSE)
+
+  for (i in 2:nrow(dfFasta)){
+    cat(paste0("\n>",dfFasta$seq.name[i], "\n", dfFasta$seq.text[i]), 
+        append=TRUE,
+        file=outputFileName)
+  }
+
+}
+
+#function to extract the unique ASV/OTU IDs from a list (also possible to extract the community abundance observed)
+extractSeqsOfInterest <- function(seqData){
+  tempVec <- c()
+  for (sample in setdiff(names(seqData), "rawData")){
+    tempVec <- append(tempVec, seqData[[sample]]$seqs$name)
+  }
+  return(unique(tempVec))
+}
+
+# function to determine the sequence ID corresponding to the OTU/ASVs
+getSeqIDs <- function(listFile, seqsOfInterest, seqType){
+  seqList <- pivot_longer(read.delim(file=listFile, header=TRUE, sep="\t"),
+                        cols=starts_with(seqType))
+  seqIDs <-  seqList %>%
+    filter(name %in% seqsOfInterest) %>%
+    pull(value) %>%
+    str_split(",") %>%
+    unlist
+  
+  return(seqIDs)
+}
+
+# function to make a biom file (to add meta data later)
+writeBIOM <- function(sharedFile, seqsOfInterest, typeOfSeq, outputBIOM, sampleMD = NULL, obsMD = NULL){
+  biomInfo <- sharedFile%>%
+  select(c("Group",contains(typeOfSeq))) %>%
+  select(Group, all_of(seqsOfInterest)) %>%
+  column_to_rownames("Group") %>%
+  t() %>%
+  as.data.frame()
+  
+  biomFile <- make_biom(data=biomInfo, sample_metadata = sampleMD, observation_metadata = obsMD, id = NULL, matrix_element_type = "int")
+
+  #return(biomFile)
+  write_biom(biomFile, outputBIOM)
+
+}
+
+```
+
+
+
+```{r}
+
+dataDirs <- c("PRJEB20299", "PRJNA309354", "PRJEB27872", "PRJNA494847")
+
+listOfFiles <- list()
+for (dir in dataDirs){
+  # make a list and set data dir
+  experimentName <- dir
+  listOfFiles[[experimentName]] <- list()
+  dir <- paste0("../", dir,"/output/")
+  
+  #read in shared files containing sequence read number by sample
+  asvShared <- read.delim(file=paste0(dir, "final.asv.shared"), header = TRUE, sep = "\t")
+  otuShared <- read.delim(file=paste0(dir,"final.opti_mcc.shared"), header = TRUE, sep = "\t")
+  
+  
+  # extract those sequence IDs with adequate relative abundance per sample and filter for singletonss
+  asvInfo <- filterSharedFile(asvShared, 0.005, "ASV")
+  otuInfo <- filterSharedFile(otuShared, 0.005, "OTU")
+  listOfFiles[[experimentName]]$sharedFile <- list("asv" = asvInfo,
+                                                   "otu"= otuInfo)
+  
+  asvsOfInterest <- extractSeqsOfInterest(asvInfo)
+  otusOfInterest <- extractSeqsOfInterest(otuInfo)
+  
+  
+  # determine sequence ID corresponding to the OTU/ASVs
+  asvIDs <- getSeqIDs(paste0(dir,"final.asv.list"), asvsOfInterest, "ASV")
+  otuIDs <- getSeqIDs(paste0(dir,"final.opti_mcc.list"), otusOfInterest, "Otu")
+  
+  
+  
+  #produce filtered fasta file for picrust2
+  otuSelectedList <- pivot_longer(read.delim(file=paste0(dir,"final.opti_mcc.list"), header=TRUE, sep="\t"),
+                        cols=starts_with("Otu")) %>%
+  filter(name %in% otusOfInterest) %>%
+  select(name, seq.name = value) %>% 
+  mutate(seq.name = strsplit(seq.name, ",")) %>%
+  unnest(seq.name)
+  
+  #read in the representative seqeunces and select the desired seqs
+  repSeqs <- read.fasta(file=paste0(dir,"final.opti_mcc.0.03.rep.fasta"), clean_name=FALSE)
+  repSeqs$seq.name <- str_extract(repSeqs$seq.name, "Otu\\d+")
+  repSeqs$seq.text <- gsub("-","",repSeqs$seq.text)
+  
+  repSeqs <- repSeqs[repSeqs$seq.name %in% otuSelectedList$name,]
+  
+  # get ASVs of interest and degap
+  asvFasta <-  read.fasta(file=paste0(dir,"final.fasta"), clean_name=FALSE) %>%
+  filter(seq.name %in% asvIDs) 
+  asvFasta$seq.text <- gsub("-", "", asvFasta$seq.text)
+  asvList <- pivot_longer(read.delim(file=paste0(dir,"final.asv.list"), header=TRUE, sep="\t"),
+                          cols=starts_with("asv"))
+  asvFasta <- merge(asvFasta, asvList, by.x="seq.name", by.y="value")
+  asvFasta <- asvFasta[,c("name","seq.text")]
+  colnames(asvFasta) <- c("seq.name", "seq.text")
+
+
+  
+  
+  # write fastas
+  writeFasta(repSeqs, paste0(experimentName, ".OTUs.temp.005.fasta"))
+  writeFasta(asvFasta, paste0(experimentName, ".ASVs.temp.005.fasta"))
+  
+  #write biom
+  writeBIOM(otuShared, otusOfInterest, "Otu", paste0(experimentName, ".OTU.temp.005.biom"))
+  writeBIOM(asvShared, asvsOfInterest, "ASV", paste0(experimentName, ".ASV.temp.005.biom"))
+
+}
+
+getSeqIDs <- function(listFile, seqsOfInterest, seqType){
+  seqList <- pivot_longer(read.delim(file=listFile, header=TRUE, sep="\t"),
+                        cols=starts_with(seqType))
+  seqIDs <-  seqList %>%
+    filter(name %in% seqsOfInterest) %>%
+    pull(value) %>%
+    str_split(",") %>%
+    unlist
+  
+  return(seqIDs)
+}
+
+```
+
+
+# PICRUST2 Data
+
+```{r processPicrust}
+#read in file with enzymes of interest
+cazyDir <- "picrust/cazy_enzymeList/"
+targetEnzymes <- read_delim(file = paste0(cazyDir,"cazyEnzyme_list.tsv"), delim="\t") %>% 
+  mutate(`CAZy Family` = strsplit(`CAZy Family`, ",")) %>%
+  unnest(`CAZy Family`)
+
+#read in the contrib and unstrat files
+picrustDir <- "/home/jvucelic/Documents/academics/Durham Class Docs/researchProject_local/backups/localAttempt_wifiDown/output3/picrust/picrust2_out_pipeline1/"
+cazyContribFile <- paste0(picrustDir, "CAZY_metagenome_out/pred_metagenome_contrib.tsv.gz")
+cazyUnstratFile <- paste0(picrustDir, "CAZY_metagenome_out/pred_metagenome_unstrat.tsv.gz")
+
+dfContrib <- read.table(gzfile(cazyContribFile), header=TRUE)
+
+
+# df_long has columns: function, sample, abundance
+df_long <- df_long %>%
+  arrange(function, sample) %>%
+  group_by(function) %>%
+  mutate(
+    prev = lag(abundance),
+    percent_change = (abundance - prev) / prev * 100
+  ) %>%
+  ungroup()
+
+
+dfUnstrat <- read.table(gzfile(cazyUnstratFile), header=TRUE) %>%
+  pivot_longer(
+    cols = -function.,
+    names_to = "sample",
+    values_to = "abundance"
+  ) %>%
+  group_by(function.) %>%
+  mutate(
+    baseline = first(abundance),
+    percent_change = (abundance - baseline) / baseline * 100
+  ) %>%
+  ungroup()
+
+dfUnstrat_filtered <- dfUnstrat %>%
+  filter(function. %in% dfCazy[["CAZY Family"]])
+
+dfUnstrat <- read.table(gzfile(cazyUnstratFile), header=TRUE) %>%
+  pivot_longer(
+    cols = -function.,
+    names_to = "sample",
+    values_to = "abundance"
+  ) %>%
+  group_by(function.) %>%
+  mutate(
+    baseline = first(abundance),
+    percent_change = (abundance - baseline) / baseline * 100
+  ) %>%
+  ungroup()
+
+
+ggplot(dfUnstrat, aes(x = sample, y = percent_change, group = function., color = function.)) +
+  geom_line(size = 1) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "CAZy Functional Abundance Across Samples",
+       x = "Sample",
+       y = "Abundance",
+       color = "Function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dfUnstrat <- read.table(gzfile(cazyUnstratFile), header=TRUE) %>%
+  pivot_longer(
+    cols = -function.,
+    names_to = "sample",
+    values_to = "abundance"
+  ) %>%
+  mutate(sample = factor(sample, levels = unique(sample))) %>%
+  arrange(function., sample) %>%
+  group_by(function.) %>%
+  mutate(
+    prev = lag(abundance),
+    percent_change = (abundance - prev) / prev * 100
+  ) %>%
+  ungroup()
+
+ggplot(dfUnstrat, aes(x = sample, y = percent_change, group = function., color = function.)) +
+  geom_line(size = 1) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "CAZy Functional Abundance Across Samples",
+       x = "Sample",
+       y = "Abundance",
+       color = "Function") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+```
+
+# BiocManager::install("Maaslin2")
+
+```{r}
+#BiocManager::install("Maaslin2")
+
+library(Maaslin2)
+?Maaslin2
+
+input_data = system.file("extdata", "HMP2_taxonomy.tsv", package="Maaslin2") # The abundance table file
+input_data
+
+input_metadata = system.file("extdata", "HMP2_metadata.tsv", package="Maaslin2") # The metadata table file
+input_metadata
+
+#get the pathway (functional) data - place holder
+download.file("https://raw.githubusercontent.com/biobakery/biobakery_workflows/master/examples/tutorial/stats_vis/input/pathabundance_relab.tsv", "./pathabundance_relab.tsv")
+
+getwd()
+```
+
+# Rarefaction Curves (ASVs and OTUs)
+
+```{r rareCurves}
+## OTUs
+
+# read in rarefaction table
+otuRare <- read.delim("final.opti_mcc.groups.rarefaction", header=T, sep="\t")
+
+# select the avg. # otus per sample (other than hci and lci)
+otuRare <- subset(otuRare, select = grep("X0|numsample", names(otuRare))) 
+
+#transform and mutate for plotting
+otuRare <- pivot_longer(data=otuRare, cols=contains("ERR"))
+
+otuRare <- otuRare %>%
+  rename_at("name", ~"Sample") %>%
+  rename_at("numsampled", ~"Number of Samples") %>%
+  rename_at("value", ~"Number of OTUs") %>%
+  mutate(Sample = gsub("X0.03.", "", Sample))
+
+## plot curves
+ggplot(data=otuRare, aes(x=`Number of Samples`, y=`Number of OTUs`, group=Sample, colour=Sample)) + 
+  geom_line()+
+  scale_x_continuous(limits = c(0,30000), breaks = seq(from = 0, to = 30000, by=3000))+
+  ggtitle("Rarefaction Curves for OTUs after Rarefaction")+
+  theme_classic()+
+  coord_cartesian(expand=FALSE)
+
+## ASVs
+
+# read in rarefaction table
+asvRare <- read.delim("final.asv.groups.rarefaction", header=T, sep="\t")
+
+# select the avg. # asvs per sample (other than hci and lci)
+asvRare <- subset(asvRare, select = grep("ASV.|numsample", names(asvRare))) 
+
+#transform and mutate for plotting
+asvRare <- pivot_longer(data=asvRare, cols=contains("ASV."))
+
+asvRare <- asvRare %>%
+  rename_at("name", ~"Sample") %>%
+  rename_at("numsampled", ~"Number of Samples") %>%
+  rename_at("value", ~"Number of ASVs") %>%
+  mutate(Sample = gsub("ASV.", "", Sample))
+
+## plot curves
+ggplot(data=asvRare, aes(x=`Number of Samples`, y=`Number of ASVs`, group=Sample, colour=Sample)) + 
+  geom_line()+
+  ggtitle("Rarefaction Curves for ASVs after Rarefaction")+
+  theme_classic()+
+  scale_x_continuous(limits = c(0,40000), breaks = seq(from = 0, to =40000, by=4000))+
+  coord_cartesian(expand=FALSE)
+```
+

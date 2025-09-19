@@ -1,0 +1,375 @@
+---
+title: "flaxRettingMetaomics_litReview"
+author: "Jakob Vucelic-Frick"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bibliometrix)
+library(tidyverse)
+library(vcd)
+library(treemap)
+library(stringr)
+library(igraph)
+library(ggraph)
+library(rvest)
+library(pubmedR)
+library(openalexR)
+```
+
+### [pubmedR](https://github.com/massimoaria/pubmedR)
+
+The *pubmedR* workflow consists of 4 steps:
+1. Construct the query
+2. Check the validity of the query
+3. Download the documents' metadata
+4. Convert the metadata to a usable format
+
+Thankfully, the NCBI API system is free and allows users to make 3 queries a second or 10/sec if the user registers for an API key. To register for a key, use this [link](https://www.ncbi.nlm.nih.gov/account/) and access your account settings. You can also refer to this [PDF](https://cran.r-project.org/web/packages/pubmedR/pubmedR.pdf) for the package's documentation. 
+I found using this [page](https://pubmed.ncbi.nlm.nih.gov/advanced/) was helpful while constructing queries. It follows a pretty straightforward format, but it is helpful to see the options and their respective codes. This [link](https://pubmed.ncbi.nlm.nih.gov/help/) is also helpful for a full set of documentation (hint: ctrl+f and search "search field tags").
+
+```{r pubmedR_flaxApplication}
+### 1) Generate credentials ###
+api_key = NULL
+
+### 2) construct and test query ###
+
+## Construct the query
+#specificQuery <- "((flax[tiab] OR hemp[tiab] OR kenaf[tiab] OR rett*[tiab]) AND (community[tiab] OR meta*bar*[tiab] OR meta*omic*[tiab] OR metaomic*[tiab] OR R16[tiab] OR R18[tiab] OR ITS[tiab]) AND microb*[tiab]) NOT (Rett syndrome[tiab] OR rumen[tiab] OR milk[tiab] OR bread[tiab] OR byssinosis[tiab] OR electrode[tiab] OR false flax[tiab] OR electrode[tiab])"
+
+query <- "retting[tiab]"
+
+# test the queries
+resSpec <- pmQueryTotalCount(query = query, api_key = api_key)
+resSpec$total_count
+
+
+### 3) download the collection of metadata ###
+
+# it is good practice to specify the total number of documents from the query
+specData <- pmApiRequest(query = query, limit = resSpec$total_count, api_key = api_key)
+
+
+### 4) convert to readable/useable format ###
+pubmedRetting <- convert2df(specData, dbsource = "pubmed", format = "api")
+pubmedRetting$TI <- str_to_sentence(pubmedRetting$TI)
+pubmedRetting$AU <- str_to_sentence(pubmedRetting$AU)
+pubmedRetting$SO <- str_to_sentence(pubmedRetting$SO)
+pubmedRetting$AB <- str_to_sentence(pubmedRetting$AB)
+#save results
+save(pubmedRetting, file="queryResults/pubmed_rettingRes.Rda")
+
+```
+
+### [openalexR](https://github.com/massimoaria/openalexR)
+
+```{r openAlex_query}
+
+openAlex_queryRes <- oa_fetch(
+  entity = "works",
+  abstract.search = "retting",
+  is_retracted = FALSE,
+  type = c("journal-article", "article", "review"),
+  verbose = TRUE
+)
+save(openAlex_queryRes, file="queryResults/openAlex_rettingRes.Rda")
+```
+
+
+# Load The data
+```{r loadSavedResults}
+load("queryResults/openAlex_rettingRes.Rda")
+load("queryResults/pubmed_rettingRes.Rda")
+```
+
+# Filter the Results
+
+```{r filterResults}
+#filter pubmed
+pubmedRetting$DI <- paste0("https://doi.org/", pubmedRetting$DI)
+#important authors sourced from https://doi.org/10.1007/s00253-024-13323-y page 6
+importantPapers <- pubmedRetting[grepl("law|djemiel|grec|akin|fuller|norman|ribeiro|liu m|
+                                       orm|brown|sharma|henriksson|fila", 
+                                       pubmedRetting$AU, ignore.case = TRUE), ]
+
+extractedArticle <- pubmedRetting[pubmedRetting$TI %in% c("MICROBIOLOGY OF RETTING."),]
+
+pubmedFiltered <- pubmedRetting[grepl("retting", pubmedRetting$AB, ignore.case = TRUE) | 
+                                  grepl("retting", pubmedRetting$TI, ignore.case = TRUE), ]
+
+pubmedFiltered <- pubmedFiltered[grepl("flax|hemp|kenaf|bast", pubmedFiltered$AB, ignore.case = TRUE) | 
+                                   grepl("hemp|flax|kenaf|bast", pubmedFiltered$TI, ignore.case = TRUE), ]
+
+ribosomalDNA <- pubmedFiltered[grepl("rDNA|16S|18S|fungus|fungi|fungal|metabar|meta-bar|metagen|meta-gen|microb", pubmedFiltered$AB, ignore.case = TRUE) | 
+                                   grepl("rDNA|16S|18S|fungus|fungi|fungal|metabar|meta-bar|metagen|meta-gen|microb", pubmedFiltered$TI, ignore.case = TRUE), ]
+
+pubmedFiltered <- unique(rbind(importantPapers,extractedArticle,ribosomalDNA))
+
+
+#filter and process openAlex
+openAlex_retting <- openAlex_retting %>%
+  mutate(
+    AU = map_chr(authorships, ~ paste(.x$display_name, collapse = "; "))
+  )
+
+importantPapers <- openAlex_retting[grepl("law|djemiel|grec|akin|fuller|norman|ribeiro|liu m|
+                                       orm|brown|sharma|henriksson|fila", 
+                                       openAlex_retting$AU, ignore.case = TRUE), ]
+
+#extractedArticle <- openAlex_retting[openAlex_retting$title %in% c("Microbiology Of Retting"),]
+
+
+openAlexFiltered <- openAlex_retting[grepl("retting", openAlex_retting$abstract, ignore.case = TRUE) | 
+                                  grepl("retting", openAlex_retting$title, ignore.case = TRUE), ]
+
+openAlexFiltered <- openAlexFiltered[grepl("flax|hemp|kenaf|bast", openAlexFiltered$abstract, ignore.case = TRUE) | 
+                                   grepl("hemp|flax|kenaf|bast", openAlexFiltered$title, ignore.case = TRUE), ]
+
+ribosomalDNA <- openAlexFiltered[grepl("rDNA|16S|18S|fungus|fungi|fungal|metabar|meta-bar|metagen|meta-gen|microb", openAlexFiltered$abstract, ignore.case = TRUE) | 
+                                   grepl("rDNA|16S|18S|fungus|fungi|fungal|metabar|meta-bar|metagen|meta-gen|microb", openAlexFiltered$title, ignore.case = TRUE), ]
+
+openAlexFiltered <- unique(rbind(importantPapers,ribosomalDNA))
+
+openAlexFiltered <- openAlexFiltered[!(grepl("rett syndrome|autism|síndrome de Rett", openAlexFiltered$abstract, ignore.case = TRUE) | 
+                                         grepl("rett syndrome|autism|síndrome de Rett|VASCULAR RESPONSIVENESS|banana|\\spigs", openAlexFiltered$title, ignore.case = TRUE)), ]
+
+
+```
+
+
+# Combine pubmed and openAlex:
+To save a lot of headaches and the possibility of filtering out relevant papers, I've decided to simply do a semi-specific screening above, and then use the final results as a reference.
+
+
+```{r combine_queryRes}
+#extract the compatiable feilds
+pubmedCompatiable <- pubmedFiltered[,c("TI","AB","PY","SO","DI","AU")]
+openAlexCompatiable <- openAlexFiltered[,c("title","abstract","publication_year","source_display_name","doi","AU"),]
+
+#standardize the col names
+colnames(pubmedCompatiable) <- c("title","abstract","publication_year","source_display_name","doi","AU")
+
+#combine doc data ans sort by year
+aggergatedDocs <- rbind(pubmedCompatiable,openAlexCompatiable)
+aggergatedDocs <- aggergatedDocs[!(duplicated(str_to_upper(aggergatedDocs$doi))) |
+                                     is.na(aggergatedDocs$doi) |
+                                     aggergatedDocs$doi == "https://doi.org/NA",]
+
+
+
+aggergatedDocs <- aggergatedDocs[order(aggergatedDocs$publication_year, decreasing = TRUE), ] 
+
+#seperate into intrest and non interest
+aggergatedDocs_dataInterest <- aggergatedDocs[(grepl("microb|16S|18S|fungus|fungi|fungal|community|meta", aggergatedDocs$abstract, ignore.case = TRUE) | 
+                                         grepl("microb|16S|18S|fungus|fungi|fungal|community|meta", aggergatedDocs$title, ignore.case = TRUE)), ]
+
+aggergatedDocs_dataNoInterest <- aggergatedDocs[!(grepl("microb|16S|18S|fungus|fungi|fungal|community|meta", aggergatedDocs$abstract, ignore.case = TRUE) | 
+                                         grepl("microb|16S|18S|fungus|fungi|fungal|community|meta", aggergatedDocs$title, ignore.case = TRUE)), ]
+
+```
+
+
+```{r writeToHTML}
+# for each record, write the title, DOI, date, and abstract to html
+htmlText <- ""
+for (rec in 1:nrow(aggergatedDocs_dataInterest)){
+  title <- aggergatedDocs_dataInterest[rec,"title"]
+  ab <- aggergatedDocs_dataInterest[rec,"abstract"]
+  py <- aggergatedDocs_dataInterest[rec,"publication_year"]
+  doi <- aggergatedDocs_dataInterest[rec,"doi"]
+  htmlText <- paste0(htmlText,"<h3>",title,": DOI- ",doi,"  Year: ",py,"</h3>","<p>",ab,"</p>")
+}
+
+htmlTemplate <- read_lines("htmlTemplate.txt")
+
+# replace the text in the template
+htmlToWrite <- gsub("Insert List of Info", htmlText, htmlTemplate)
+
+#write to html file in wd
+htmlOutputFile<-file("compiledAbstracts/relevantAbstracts.html")
+writeLines(htmlToWrite, htmlOutputFile)
+close(htmlOutputFile)
+
+# for each record, write the title, DOI, date, and abstract to html
+htmlText <- ""
+for (rec in 1:nrow(aggergatedDocs_dataNoInterest)){
+  title <- aggergatedDocs_dataNoInterest[rec,"title"]
+  ab <- aggergatedDocs_dataNoInterest[rec,"abstract"]
+  py <- aggergatedDocs_dataNoInterest[rec,"publication_year"]
+  doi <- aggergatedDocs_dataNoInterest[rec,"doi"]
+  htmlText <- paste0(htmlText,"<h3>",title,": DOI- ",doi,"  Year: ",py,"</h3>","<p>",ab,"</p>")
+}
+
+htmlTemplate <- read_lines("htmlTemplate.txt")
+
+# replace the text in the template
+htmlToWrite <- gsub("Insert List of Info", htmlText, htmlTemplate)
+
+#write to html file in wd
+htmlOutputFile<-file("compiledAbstracts/notRelevantAbstracts.html")
+writeLines(htmlToWrite, htmlOutputFile)
+close(htmlOutputFile)
+
+```
+
+
+
+```{r futileAttemps_endedupjustbrutforcingit}
+
+
+listOfDois <- substring(aggergatedDocs_dataInterest, 17)
+
+
+
+
+pubsWithDoi <- oa_fetch(
+  entity = "works",
+  doi = listOfDois,
+  verbose = TRUE
+)
+
+query <- paste0(listOfDois[50:56],collapse="[aid] OR ")
+
+RES <- ""
+for (rec in 1:length(listOfDois)){
+  if (rec%%3 == 0){
+    Sys.sleep(1)
+  }
+  else{
+     query <- paste0(listOfDois[rec],"[aid] AND (EBI OR ENA OR NCBI OR EGA OR genbank)[Text Word]")
+     resSpec <- pmQueryTotalCount(query = query, api_key = api_key)
+     RES <- paste0(RES, "\nRecord: ", rec, "\nCount: ", resSpec$total_count)
+  }
+ 
+}
+paste(RES)
+
+query <- paste0(listOfDois[1:10], collapse="[aid] AND (EBI OR data OR ENA OR NCBI OR EGA OR genbank)[Text Word] ")
+listOfDois[56]
+
+
+
+# test the queries
+resSpec <- pmQueryTotalCount(query = query, api_key = api_key)
+resSpec$total_count
+
+
+### 3) download the collection of metadata ###
+
+# it is good practice to specify the total number of documents from the query
+specData <- pmApiRequest(query = query, limit = resSpec$total_count, api_key = api_key)
+
+pubsWithDoi
+```
+
+# START AI CONTENT: CHAT GPT WAS USED TO GENERATE THE CODE BELOW
+```{r analysis}
+# Split authors into rows
+author_counts <- pubmedRetting %>%
+  separate_rows(AU, sep = ";") %>%     # Split the authors by ";"
+  mutate(AU = trimws(AU)) %>%     # Trim any whitespace
+  count(AU, name = "publications") %>%# Count the number of occurrences
+  filter(publications >1)
+
+# Plot
+ggplot(author_counts, aes(x = reorder(AU, -publications), y = publications)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Number of Publications per Author",
+       x = "Author",
+       y = "Number of Publications") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# keyword analysis
+df <- pubmedRetting[,c("ID","DE")]
+
+# Step 1: Merge both keyword columns
+df_keywords <- df %>%
+  unite("all_keywords", ID, DE, sep = ";") %>%           # Combine the two columns
+  mutate(all_keywords = str_replace_all(all_keywords, "^;+|;+$", ""),       # Remove leading/trailing semicolons
+         all_keywords = str_split(all_keywords, ";"))                  # Split into list of keywords
+
+# Step 2: Create co-occurrence pairs (if statement catches error caused by combn when there are less than 2 keywords)
+keyword_pairs <- df_keywords %>%
+  pull(all_keywords) %>%
+  lapply(function(kw) {
+    kw <- unique(trimws(kw))  # Clean and deduplicate
+    if (length(kw) >= 2) {
+      combn(kw, 2, simplify = FALSE)
+    } else {
+      NULL  # Skip rows with <2 keywords
+    }
+  }) %>%
+  unlist(recursive = FALSE) %>%
+  do.call(rbind, .) %>%
+  as.data.frame(stringsAsFactors = FALSE)
+
+colnames(keyword_pairs) <- c("from", "to")
+
+# Step 3: Count pair co-occurrences
+edges <- keyword_pairs %>%
+  group_by(from, to) %>%
+  summarise(weight = n(), .groups = "drop")
+
+# Step 4: Create graph and plot network
+graph <- graph_from_data_frame(edges, directed = FALSE)
+
+ggraph(graph, layout = "fr") +
+  geom_edge_link(aes(width = weight), edge_alpha = 0.5) +
+  geom_node_point(size = 5, color = "steelblue") +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() +
+  labs(title = "Keyword Co-occurrence Network")
+
+#note: i think the network layout is randomised so consider setting seed
+#also, there is probally a better way to show the network, maybe only doing the top keywords?
+
+#make table for treemap
+all_keywords_flat <- df_keywords %>%
+  unnest(all_keywords) %>%
+  mutate(keyword = trimws(all_keywords)) %>%
+  count(keyword, sort = TRUE)
+```
+# END AI CONTENT
+
+## Code Sourced from the [R Graph Gallery](https://r-graph-gallery.com/)
+```{r}
+dfCountries <- as.data.frame(table(pubmedRetting$SO_CO))
+colnames(dfCountries) <- c("Country", "Number of Publications")
+
+# treemap
+treemap(dfCountries,
+            index="Country",
+            vSize="Number of Publications",
+            type="index"
+            )
+
+#consider removing keywords with 1 occurrence
+treemap(all_keywords_flat,
+            index="keyword",
+            vSize="n",
+            type="index"
+            )
+
+
+# Most basic bubble plot
+pubmedRetting$PY <- as.Date(paste0(pubmedRetting$PY, "-01-01"))
+tbYears <- as.data.frame(table(pubmedRetting$PY))
+p <- ggplot(tbYears, aes(x=Var1, y=Freq)) +
+  geom_line(group=1) + 
+  xlab("Year")+
+  ylab("Number of Publications")+
+  ggtitle("Number of Publications Over Time")
+p
+```
+
+
+
+# Citations (thank God for all the smart people)
+
+Aria, M. & Cuccurullo, C. (2017) bibliometrix: An R-tool for comprehensive science mapping analysis, Journal of Informetrics, 11(4), pp 959-975, Elsevier.
+                                  
+Aria, M., Le T., Cuccurullo, C., Belfiore, A. & Choe, J. (2024), openalexR: An R-Tool for Collecting Bibliometric Data from OpenAlex, The R Journal, 15(4), 167-180, DOI: https://doi.org/10.32614/RJ-2023-089.

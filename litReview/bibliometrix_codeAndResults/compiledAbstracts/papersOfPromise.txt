@@ -1,0 +1,42 @@
+Title,doi,data
+Microbial communities and their role in enhancing hemp fiber quality through field retting,https://doi.org/10.1007/s00253-024-13323-y,Review MUST READ
+Water retting process with hemp pre-treatment: effect on the enzymatic activities and microbial populations dynamic,https://doi.org/10.1007/s00253-024-13300-5,SRA-NCBI PRJNA1124099
+The sequential microbial breakdown of pectin is the principal incident during water retting of jute (Corchorus spp.) bast fibres,https://doi.org/10.1186/s12870-024-04970-4,Bacillus safensis/Bacillus velezensis/Bacillus altitudinis
+Effects of Pectinase on Bacterial Succession during Hemp Retting,https://doi.org/10.3390/pr12081725,available upon request (sheldon.shi@unt.edu)
+Response characteristics of flax retting liquid addition during chicken manure composting: focusing on core bacteria in organic carbon mineralization and humification,https://doi.org/10.1016/j.biortech.2023.129112,available upon request (gejingping@126.com)
+Surface Treatment on Cellulose Fibres Produced from Natural Plants: A Review,https://doi.org/10.1109/stcr59085.2023.10397041,review GOOD READ
+Estimating the bias related to dna recovery from hemp stems for retting microbial community investigation,https://doi.org/10.1007/s00253-023-12582-5,SRA-NCBI PRJNA911961
+Microbial communities that drive the degradation of flax pectin and hemicellulose during dew retting with bacillus licheniformis hdym-04 and bacillus subtilis zc-01 addition,https://doi.org/10.1016/j.biortech.2022.128516,no data but good BCS analysis
+Pectinolytic Bacterial Consortia Reduce Jute Retting Period and Improve Fibre Quality,https://doi.org/10.1038/s41598-020-61898-z,not in lit review but GenBank MH010052-MH010195
+Metagenomic and proteomic analysis of bacterial retting community and proteome profile in the degumming process of kenaf bast,https://doi.org/10.1186/s12870-022-03890-5,SRA-NCBI PRJNA850647 and ProteomeXchange Consortium PXD035056
+Effects of traditional field retting of hemp on soil organic carbon and the soil microbial community,https://doi.org/10.1002/saj2.20376,no data but interesting
+A novel actinobacterial cutinase containing a noncatalytic polymer-binding domain,https://doi.org/10.1128/AEM.01522-21,no data
+Isolation of Alkalophilic Pectinolytic Bacteria and their Bio Retting Effect on Kenaf Fiber Compositions,https://doi.org/10.47059/alinteri/v36i2/ajas21129,no data but specific strains isolated
+Targeted metagenomics of retting in flax: the beginning of the quest to harness the secret powers of the microbiota,https://doi.org/10.3389/fgene.2020.581664,review MUST READ
+Genome comparison identifies different bacillus species in a bast fibre-retting bacterial consortium and provides insights into pectin degrading genes,https://doi.org/10.1038/s41598-020-65228-1,MUST READ detailed data on three strains PJRB1-3 with biosample/genome/SRA acsessions of SAMN11964560/VFLO00000000/SRR9317474 SAMN11964574/VFLN00000000/SRR9317475 SAMN11964575/VFLM00000000/SRR9317473
+The Microbiology of Hemp Retting in a Controlled Environment: Steering the Hemp Microbiome towards More Consistent Fiber Production ,10.3390/agronomy10040492,PRJNA494847
+Elucidating field retting mechanisms of hemp fibres for biocomposites: Effects of microbial actions and interactions on the cellular micro-morphology and ultrastructure of hemp stems and bast fibres.https://doi.org/10.15376/biores.14.2.4047-4084,MUST READ
+Retting and degumming of flax using biotechnology eco-friendly approach,https://doi.org/10.21608/ejchem.2019.9571.1641,key bacterial strains identified
+Diversity and Characteristics of Kenaf Bast Degumming Microbial Resources,10.1080/15440478.2017.1369206,bacteria and fungi identified
+Characterization of bacterial and fungal community dynamics by high-throughput sequencing (hts) metabarcoding during flax dew-retting,https://doi.org/10.3389/fmicb.2017.02052,EBI ENA PRJEB20299
+Comparison of traditional field retting and phlebia radiata cel 26 retting of hemp fibres for fibre-reinforced composites,https://doi.org/10.1186/s13568-017-0355-8,MUST READ EMBL database LT622055-LT622085
+Bacterial succession and metabolite changes during flax (linum usitatissimum l.) Retting with bacillus cereus hdym-02,https://doi.org/10.1038/srep31812,NCBI-SRA SRP068887
+Potential of Microbial Enzymes in Retting of Natural Fibers: A Review,https://doi.org/10.2174/221271190302160607151925, no data a review
+Microbial diversity observed during hemp retting,https://doi.org/10.1007/s00253-014-6356-5,GenBank KM507203-KM507290
+Investigation of the bacterial retting community of kenaf (hibiscus cannabinus) under different conditions using next-generation semiconductor sequencing,https://doi.org/10.1007/s10295-013-1242-1,available upon request (michael.allen@unthsc.edu)
+Application of fungal complexes to improve flax dew-retting,https://www.researchgate.net/publication/311439152_Application_of_Fungal_Complexes_to_Improve_Flax_Dew-Retting,no data but fungi identified
+A flax-retting endopolygalacturonase-encoding gene from rhizopus oryzae,https://doi.org/10.1007/s10482-008-9274-7,GenBank EU432156 for a fungus
+New Methods for the Improvement of Flax Dew Retting,https://doi.org/10.1300/j395v03n04_05,paper for applications
+Bacterial Population Structure of the Jute-Retting Environment,https://doi.org/10.1007/s00248-007-9345-8,DQ252375-DQ252481 DQ238814-DQ238826 EF067808-EF067839
+
+
+
+
+
+
+
+
+
+
+
+

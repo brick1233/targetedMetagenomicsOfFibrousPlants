@@ -1,0 +1,39 @@
+Substrate	Enzyme Activity	Code	CAZy Family
+Pectin	Endo-/exo-(rhamno) galacturonases		GH28
+Pectin	α-rhamnosidase	RHA	GH78
+Pectin	α-arabinofuranosidase	ABF	GH51,GH54
+Pectin	Endoarabinanase	ABN	GH43
+Pectin	Exoarabinanase	ABX	GH93
+Pectin	β-1,4-endogalactanase	GAL	GH53
+Pectin	Unsaturated glucuronyl hydrolase	UGH	GH88
+Pectin	Unsaturated rhamnogalacturonan hydrolase	URH	GH105
+Pectin	β-1,4-xylosidase	BXL	GH3,GH43
+Pectin	β-1,4-galactosidase	LAC	GH2,GH35
+Pectin	Pectin lyase	PEL	PL1
+Pectin	Pectate lyase	PLY	PL1,PL3,PL9
+Pectin	Rhamnogalacturonan lyase	RGL	PL4,PL11
+Pectin	Pectin methyl esterase	PME	CE8
+Pectin	Rhamnogalacturonan acetyl esterase	RGAE	CE12
+Pectin	Feruloyl esterase	FAE	CE1
+Hemicellulose-Xyoglucan	Xyloglucan β-1,4-endoglucanase	XEG	GH12,GH74
+Hemicellulose-Xyoglucan	α-arabinofuranosidase	ABF	GH51,GH54
+Hemicellulose-Xyoglucan	α-xylosidase	AXL	GH31
+Hemicellulose-Xyoglucan	α-fucosidase	AFC	GH29,GH95
+Hemicellulose-Xyoglucan	α-1,4-galactosidase	AGL	GH27,GH36
+Hemicellulose-Xyoglucan	β-1,4-galactosidase	LAC	GH2,GH35
+Hemicellulose-Xylan	β-1,4-endoxylanase	XLN	GH10,GH11
+Hemicellulose-Xylan	β-1,4-xylosidase	BXL	GH3,GH43
+Hemicellulose-Xylan	α-arabinofuranosidase	ABF	GH51,GH54
+Hemicellulose-Xylan	Arabinoxylan arabinofuranohydrolase	AXH	GH62
+Hemicellulose-Xylan	α-glucuronidase	AGU	GH67,GH115
+Hemicellulose-Xylan	α-1,4-galactosidase	AGL	GH27,GH36
+Hemicellulose-Xylan	β-1,4-galactosidase	LAC	GH2,GH35
+Hemicellulose-Xylan	Acetyl xylan/feruloyl esterase	AXE/FAE	CE1
+Hemicellulose-Galactomannan	β-1,4-endomannanase	MAN	GH5,GH26
+Hemicellulose-Galactomannan	β-1,4-mannosidase	MND	GH2
+Hemicellulose-Galactomannan	β-1,4-galactosidase	LAC	GH2,GH35
+Hemicellulose-Galactomannan	α-1,4-galactosidase	AGL	GH27,GH36
+Cellulose	β-1,4-endoglucanase	EGL	GH5,GH12,GH45
+Cellulose	Cellobiohydrolase	CBH	GH6
+Cellulose	β-1,4-glucosidase	BGL	GH1,GH3
+

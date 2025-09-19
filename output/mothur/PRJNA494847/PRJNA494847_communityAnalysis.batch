@@ -1,0 +1,21 @@
+# differential analysis (amova and lefse) using yue clayton and jaccard dists
+# set an output dir for each class
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/stage)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.stage.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.stage.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.stage.design, class=stage)
+
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/turned)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.turned.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.turned.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.turned.design, class=turned)
+
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/treatment)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.treatment.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.treatment.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.treatment.design, class=treatment)
+
+set.dir(input=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/, output=/nobackup/qsfl69/fibrousPlantsRetting/output/mothur/PRJNA494847/output/rettingPeriod)
+amova(phylip=final.opti_mcc.thetayc.0.03.lt.ave.dist, design=design.rettingPeriod.design)
+amova(phylip=final.opti_mcc.jclass.0.03.lt.ave.dist, design=design.rettingPeriod.design)
+lefse(shared=final.opti_mcc.0.03.subsample.shared, design=design.rettingPeriod.design, class=rettingPeriod)

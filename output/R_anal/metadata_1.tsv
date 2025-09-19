@@ -1,0 +1,197 @@
+accession	stage	turned	cultivar_type	retting_type	plant	treatment	experiment	rettingPeriod	replicate
+ERR2757325	early	FALSE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R0	na
+ERR2757326	early	FALSE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R1	na
+ERR2757327	early	FALSE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R2	na
+ERR2757328	early	FALSE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R3	na
+ERR2757329	middle	FALSE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R4	na
+ERR2757330	middle	TRUE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R5	na
+ERR2757331	late	TRUE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R6	na
+ERR2757332	late	TRUE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R7	na
+ERR2757333	late	TRUE	Cultivar Lorea	dew	flax	standard	PRJEB27872	R8	na
+ERR2179951	early	FALSE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R0	na
+ERR2179952	early	FALSE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R1	na
+ERR2179953	early	FALSE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R2	na
+ERR2179954	middle	TRUE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R3	na
+ERR2179955	middle	TRUE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R4	na
+ERR2179956	late	TRUE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R5	na
+ERR2179957	late	TRUE	Cultivar Lorea	dew	flax	early harvest	PRJEB20299	R6	na
+ERR2179958	early	FALSE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R0	na
+ERR2179959	early	FALSE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R1	na
+ERR2179960	early	FALSE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R2	na
+ERR2179961	middle	TRUE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R3	na
+ERR2179962	middle	TRUE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R4	na
+ERR2179963	late	TRUE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R5	na
+ERR2179964	late	TRUE	Cultivar Lorea	dew	flax	standard harvest	PRJEB20299	R6	na
+SRR3123514	early	na	unknown	water	flax	standard	PRJNA309354	R1	na
+SRR3123516	early	na	unknown	water	flax	standard	PRJNA309354	R2	na
+SRR3123517	middle	na	unknown	water	flax	standard	PRJNA309354	R3	na
+SRR3123518	middle	na	unknown	water	flax	standard	PRJNA309354	R4	na
+SRR3123519	late	na	unknown	water	flax	standard	PRJNA309354	R5	na
+SRR3123509	early	na	unknown	water	flax	inoculated	PRJNA309354	R1	na
+SRR3123510	early	na	unknown	water	flax	inoculated	PRJNA309354	R2	na
+SRR3123511	middle	na	unknown	water	flax	inoculated	PRJNA309354	R3	na
+SRR3123512	middle	na	unknown	water	flax	inoculated	PRJNA309354	R4	na
+SRR3123513	late	na	unknown	water	flax	inoculated	PRJNA309354	R5	na
+SRR7969180	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R1	rep1
+SRR7969181	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R2	rep1
+SRR7969178	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R3	rep1
+SRR7969179	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R4	rep1
+SRR7969184	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R5	rep1
+SRR7969185	late	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R6	rep1
+SRR7969182	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R1	rep2
+SRR7969183	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R2	rep2
+SRR7969176	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R3	rep2
+SRR7969177	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R4	rep2
+SRR7969155	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R5	rep2
+SRR7969154	late	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R6	rep2
+SRR7969153	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R1	rep3
+SRR7969152	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R2	rep3
+SRR7969151	early	FALSE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R3	rep3
+SRR7969150	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R4	rep3
+SRR7969149	middle	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R5	rep3
+SRR7969148	late	TRUE	SS Alpha	dew	hemp	Soil Slurry	PRJNA494847	R6	rep3
+SRR7969097	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R1	rep1
+SRR7969098	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R2	rep1
+SRR7969095	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R3	rep1
+SRR7969096	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R4	rep1
+SRR7969103	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R5	rep1
+SRR7969104	late	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R6	rep1
+SRR7969251	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R1	rep2
+SRR7969250	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R2	rep2
+SRR7969249	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R3	rep2
+SRR7969248	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R4	rep2
+SRR7969255	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R5	rep2
+SRR7969254	late	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R6	rep2
+SRR7969253	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R1	rep3
+SRR7969252	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R2	rep3
+SRR7969247	early	FALSE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R3	rep3
+SRR7969246	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R4	rep3
+SRR7969222	middle	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R5	rep3
+SRR7969223	late	TRUE	SS Alpha	dew	hemp	Low Moisture	PRJNA494847	R6	rep3
+SRR7969224	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R1	rep1
+SRR7969225	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R2	rep1
+SRR7969218	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R3	rep1
+SRR7969219	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R4	rep1
+SRR7969220	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R5	rep1
+SRR7969221	late	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R6	rep1
+SRR7969216	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R1	rep2
+SRR7969217	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R2	rep2
+SRR7969199	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R3	rep2
+SRR7969198	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R4	rep2
+SRR7969201	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R5	rep2
+SRR7969200	late	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R6	rep2
+SRR7969203	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R1	rep3
+SRR7969202	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R2	rep3
+SRR7969205	early	FALSE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R3	rep3
+SRR7969204	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R4	rep3
+SRR7969197	middle	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R5	rep3
+SRR7969196	late	TRUE	SS Alpha	dew	hemp	High Moisture	PRJNA494847	R6	rep3
+SRR7969236	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R1	rep1
+SRR7969237	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R2	rep1
+SRR7969244	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R3	rep1
+SRR7969245	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R4	rep1
+SRR7969120	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R5	rep1
+SRR7969119	late	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R6	rep1
+SRR7969122	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R1	rep2
+SRR7969121	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R2	rep2
+SRR7969116	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R3	rep2
+SRR7969115	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R4	rep2
+SRR7969118	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R5	rep2
+SRR7969117	late	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R6	rep2
+SRR7969124	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R1	rep3
+SRR7969123	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R2	rep3
+SRR7969101	early	FALSE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R3	rep3
+SRR7969102	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R4	rep3
+SRR7969099	middle	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R5	rep3
+SRR7969100	late	TRUE	Futura 75	dew	hemp	Soil Slurry	PRJNA494847	R6	rep3
+SRR7969090	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R1	rep1
+SRR7969089	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R2	rep1
+SRR7969088	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R3	rep1
+SRR7969087	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R4	rep1
+SRR7969094	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R5	rep1
+SRR7969093	late	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R6	rep1
+SRR7969092	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R1	rep2
+SRR7969091	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R2	rep2
+SRR7969086	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R3	rep2
+SRR7969085	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R4	rep2
+SRR7969109	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R5	rep2
+SRR7969110	late	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R6	rep2
+SRR7969111	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R1	rep3
+SRR7969112	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R2	rep3
+SRR7969105	early	FALSE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R3	rep3
+SRR7969106	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R4	rep3
+SRR7969107	middle	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R5	rep3
+SRR7969108	late	TRUE	Futura 75	dew	hemp	Low Moisture	PRJNA494847	R6	rep3
+SRR7969113	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R1	rep1
+SRR7969114	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R2	rep1
+SRR7969211	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R3	rep1
+SRR7969210	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R4	rep1
+SRR7969213	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R5	rep1
+SRR7969212	late	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R6	rep1
+SRR7969207	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R1	rep2
+SRR7969206	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R2	rep2
+SRR7969209	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R3	rep2
+SRR7969208	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R4	rep2
+SRR7969215	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R5	rep2
+SRR7969214	late	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R6	rep2
+SRR7969242	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R1	rep3
+SRR7969243	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R2	rep3
+SRR7969240	early	FALSE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R3	rep3
+SRR7969241	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R4	rep3
+SRR7969238	middle	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R5	rep3
+SRR7969239	late	TRUE	Futura 75	dew	hemp	High Moisture	PRJNA494847	R6	rep3
+SRR7969195	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R1	rep1
+SRR7969126	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R2	rep1
+SRR7969125	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R3	rep1
+SRR7969128	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R4	rep1
+SRR7969127	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R5	rep1
+SRR7969130	late	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R6	rep1
+SRR7969129	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R1	rep2
+SRR7969132	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R2	rep2
+SRR7969131	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R3	rep2
+SRR7969134	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R4	rep2
+SRR7969133	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R5	rep2
+SRR7969138	late	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R6	rep2
+SRR7969139	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R1	rep3
+SRR7969136	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R2	rep3
+SRR7969137	early	FALSE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R3	rep3
+SRR7969142	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R4	rep3
+SRR7969143	middle	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R5	rep3
+SRR7969140	late	TRUE	Felina 32	dew	hemp	Soil Slurry	PRJNA494847	R6	rep3
+SRR7969161	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R1	rep1
+SRR7969158	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R2	rep1
+SRR7969159	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R3	rep1
+SRR7969156	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R4	rep1
+SRR7969157	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R5	rep1
+SRR7969164	late	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R6	rep1
+SRR7969165	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R1	rep2
+SRR7969234	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R2	rep2
+SRR7969235	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R3	rep2
+SRR7969232	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R4	rep2
+SRR7969233	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R5	rep2
+SRR7969230	late	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R6	rep2
+SRR7969231	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R1	rep3
+SRR7969228	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R2	rep3
+SRR7969229	early	FALSE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R3	rep3
+SRR7969226	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R4	rep3
+SRR7969227	middle	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R5	rep3
+SRR7969173	late	TRUE	Felina 32	dew	hemp	Low Moisture	PRJNA494847	R6	rep3
+SRR7969172	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R1	rep1
+SRR7969171	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R2	rep1
+SRR7969170	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R3	rep1
+SRR7969169	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R4	rep1
+SRR7969168	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R5	rep1
+SRR7969167	late	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R6	rep1
+SRR7969166	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R1	rep2
+SRR7969175	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R2	rep2
+SRR7969174	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R3	rep2
+SRR7969186	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R4	rep2
+SRR7969187	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R5	rep2
+SRR7969188	late	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R6	rep2
+SRR7969189	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R1	rep3
+SRR7969190	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R2	rep3
+SRR7969191	early	FALSE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R3	rep3
+SRR7969192	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R4	rep3
+SRR7969193	middle	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R5	rep3
+SRR7969194	late	TRUE	Felina 32	dew	hemp	High Moisture	PRJNA494847	R6	rep3
+

@@ -1,0 +1,7 @@
+"0","library(openalexR)
+"
+"2","openalexR v2.0.0 introduces breaking changes.
+See NEWS.md for details.
+
+To suppress this message, add `openalexR.message = suppressed` to your .Renviron file.
+"

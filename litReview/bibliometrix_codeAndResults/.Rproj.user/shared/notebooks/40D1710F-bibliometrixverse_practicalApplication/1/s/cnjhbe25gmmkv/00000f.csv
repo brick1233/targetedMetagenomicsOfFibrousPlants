@@ -1,0 +1,6 @@
+"0","#plot of the results
+plot(x=results)
+"
+"2","Error in grid.Call.graphics(C_setviewport, vp, TRUE) : 
+  non-finite location and/or size for viewport
+"
