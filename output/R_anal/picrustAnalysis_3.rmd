@@ -1,0 +1,594 @@
+---
+title: "mothur pre-process"
+author: "Jakob Vucelic-Frick"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggpicrust2)
+library(magrittr)
+library(colorspace)
+library(ggpattern)
+
+
+# pkgs <- c("phyloseq", "ALDEx2", "SummarizedExperiment", "Biobase", "devtools",
+#           "ComplexHeatmap", "BiocGenerics", "BiocManager", "metagenomeSeq",
+#           "Maaslin2", "edgeR", "lefser", "limma", "KEGGREST", "DESeq2")
+# 
+#  for (pkg in pkgs) {
+#    if (!requireNamespace(pkg, quietly = TRUE))
+#      BiocManager::install(pkg)
+#  }
+```
+
+# process the picrust data with pca per experiment and daa for pooled data
+(note, functional abundances are normalized by relative abundance for PCA and the raw counts are kept for DAA. The contrib file will be used to associate functions to OTUs)
+```{r getPicrustData}
+# read metadata
+metadata <- read_tsv(file = "metadata_1.tsv")
+
+# loop through each experiment and get picrust2 data
+dataDirs <- c("PRJEB20299", "PRJNA309354", "PRJEB27872" , "PRJNA494847")
+
+# target CAZy
+picrustDir <- "../picrust2/"
+cazyTargets_dir <- paste0(picrustDir,"cazyOfInterest.tsv")
+targetEnzymes <- read_delim(file = cazyTargets_dir, delim="\t") %>% 
+  mutate(`CAZy Family` = strsplit(`CAZy Family`, ",")) %>%
+  unnest(`CAZy Family`)
+
+dfUnstrat_relAbund <- data.frame()
+dfUnstrat_rawCounts <- data.frame()
+dfContrib <- data.frame()
+
+for(dir in dataDirs){
+  picrustExpDir <- paste0(picrustDir,dir,"_OTUs_picrust2/")
+  
+  # # get list of valid otus (not actually used, but could be used in future to ensure only bac sequences are retained for analysis) very few are cassified as arc so not a priority at the moment
+  # combinedNsti <- read.table(gzfile(paste0(picrustExpDir,"combined_marker_predicted_and_nsti.tsv.gz")), header=TRUE)
+  # validOTUs <- combinedNsti %>%
+  #   filter(metadata_NSTI <= 2 & best_domain == "bac") %>%
+  #   select(sequence)
+
+  #read in the contrib and unstrat files, while adding an experiment ID column
+  cazyContribFile <- paste0(picrustExpDir, "CAZY_metagenome_out/pred_metagenome_contrib.tsv.gz")
+  cazyUnstratFile <- paste0(picrustExpDir, "CAZY_metagenome_out/pred_metagenome_unstrat.tsv.gz")
+  
+  dfContrib_temp <- read.table(gzfile(cazyContribFile), header=TRUE)
+  dfContrib_temp$exp_ID <- dir
+  
+  dfUnstrat_temp <- read.table(gzfile(cazyUnstratFile), header=TRUE) %>%
+    pivot_longer(
+      cols = -function.,
+      names_to = "sample",
+      values_to = "abundance"
+  ) %>%
+    filter(`function.` %in% targetEnzymes[["CAZy Family"]]) 
+  dfUnstrat_temp$exp_ID <- dir
+  
+  #save raw counts
+  dfUnstrat_rawCounts <- bind_rows(dfUnstrat_temp, dfUnstrat_rawCounts)
+  dfUnstrat_rawCounts[is.na(dfUnstrat_rawCounts)] <- 0
+  
+  # filter unstrat and contrib for only target enzymes and normalize by relative abundance
+  dfUnstrat_temp <- dfUnstrat_temp %>%
+    select(sample, function., abundance) %>%
+    pivot_wider(names_from = function., values_from = abundance, values_fill = 0) %>%
+    column_to_rownames("sample")
+  
+  sampleNames <- rownames(dfUnstrat_temp)
+  dfUnstrat_temp <- dfUnstrat_temp %>%
+    rowwise() %>%
+    mutate(across(everything(), ~ . / sum(c_across(everything())))) %>%
+    ungroup() %>%
+    as.data.frame()
+  rownames(dfUnstrat_temp) <- sampleNames
+
+  dfContrib_temp <- dfContrib_temp %>%
+    filter(`function.` %in% targetEnzymes[["CAZy Family"]]) 
+  
+  # save contrib 
+  dfContrib <- rbind(dfContrib, dfContrib_temp)
+  
+  # save relative abundance with expeirment id
+  dfUnstrat_relAbund <- bind_rows(dfUnstrat_relAbund, dfUnstrat_temp)
+  dfUnstrat_relAbund[is.na(dfUnstrat_relAbund)] <- 0
+  
+}
+
+```
+
+## Process with PCA
+
+```{r processPCA}
+# Isolate each accID for each experiment
+acc1 <- metadata[metadata$experiment == "PRJEB20299", "accession"][[1]]
+acc2 <- metadata[metadata$experiment == "PRJNA309354", "accession"][[1]]
+acc3 <- metadata[metadata$experiment == "PRJEB27872", "accession"][[1]]
+acc4 <- metadata[metadata$experiment == "PRJNA494847", "accession"][[1]]
+
+# funx to get pca scores per experiment
+getPCA_scores <- function(pooledUnstrat, metadata, targetAccs){
+  
+  # filter the metadata and the unstrat file for the target accs
+  selectedUnstrat <- pooledUnstrat[rownames(pooledUnstrat) %in% targetAccs, ]
+  selectedMetadata <- metadata[metadata$accession %in% targetAccs,]
+  
+  pca <- prcomp(selectedUnstrat[,colSums(selectedUnstrat != 0) > 0], scale. = TRUE)
+  percentVar <- round(100 * (pca$sdev^2 / sum(pca$sdev^2)), 1)
+  scores <- as.data.frame(pca$x)
+  scores$accession <- rownames(scores)
+  
+  # merge with metadata and plot different variables
+  scores <- left_join(scores, selectedMetadata, by = "accession")
+  
+  return(list(scores = scores, percentVar = percentVar))
+}
+
+
+PRJEB20299_pcaInfo <- getPCA_scores(dfUnstrat_relAbund, metadata, acc1)
+PRJNA309354_pcaInfo <- getPCA_scores(dfUnstrat_relAbund, metadata, acc2)
+PRJEB27872_pcaInfo <- getPCA_scores(dfUnstrat_relAbund, metadata, acc3)
+PRJNA494847_pcaInfo <- getPCA_scores(dfUnstrat_relAbund, metadata, acc4)
+
+
+# function to plot pca
+plotPCA_cazy <- function(pcaInfo = NULL, exp = NULL, facetByTreatment = NULL) {
+  # get scores and percent variance 
+  scores <- pcaInfo$scores
+  percent_var <- pcaInfo$percentVar
+  
+  # Remove 'turned' column if exp is PRJNA309354
+  if (exp == "PRJNA309354") {
+    scores$turned <- NULL
+  }
+
+  # Convert factor levels to sentence case for plotting
+  to_sentence <- function(x) {
+    x <- as.character(x)
+    x <- str_replace_all(x, "_", " ")
+    x <- str_to_sentence(x)
+    return(x)
+  }
+
+  if ("turned" %in% names(scores)) {
+    scores$turned <- to_sentence(scores$turned)
+  }
+  if ("stage" %in% names(scores)) {
+    scores$stage <- to_sentence(scores$stage)
+  }
+  if ("treatment" %in% names(scores)) {
+    scores$treatment <- to_sentence(scores$treatment)
+  }
+  
+  cazyPcaPlot <- ggplot(scores, aes(x = PC1, y = PC2)) +
+    geom_point(aes(
+      color = if ("turned" %in% colnames(scores)) turned else NULL,
+      shape = stage
+    ), size = 6, alpha = 0.85, na.rm = TRUE) +
+    labs(
+      title = paste0("PCA of Selected CAZy Families (Accession ", exp, ")"),
+      x = paste0("PC1 (", percent_var[1], "% variance)"),
+      y = paste0("PC2 (", percent_var[2], "% variance)"),
+      color = "Turned",
+      shape = "Stage"
+    ) +
+    scale_color_brewer(palette = "Set1")+
+    theme_classic()+
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.title.x = element_text(size = 19),
+      axis.title.y = element_text(size = 19),
+      legend.text = element_text(size = 18),
+      legend.title = element_text(size = 20),
+      plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
+      strip.text = element_text(size = 18, face = "bold"),
+      legend.position = "right")
+
+  # Facet by treatment if requested and present
+  if (facetByTreatment && "treatment" %in% colnames(scores)) {
+    cazyPcaPlot <- cazyPcaPlot + facet_grid(~ treatment)
+  }
+
+  return(cazyPcaPlot)
+
+}
+
+
+pca_list <- list(
+  PRJEB20299 = PRJEB20299_pcaInfo,
+  PRJNA309354 = PRJNA309354_pcaInfo,
+  PRJEB27872 = PRJEB27872_pcaInfo,
+  PRJNA494847 = PRJNA494847_pcaInfo
+)
+
+
+for(experimentID in dataDirs){
+  plotPath <- paste0("./", experimentID, "/PCA_ofCAZy_byTreatment_", experimentID, ".png")
+  plot <- plotPCA_cazy(pca_list[[experimentID]], experimentID, facetByTreatment = (experimentID %in% c("PRJEB20299", "PRJNA494847", "PRJNA309354)")))
+    
+  ggsave(
+    filename = plotPath,
+    plot = plot,
+    width = 12,
+    height = 8,
+    dpi = 800
+  )
+}
+```
+
+## Process With DAA
+``` {r daaPICRUSt2}
+# run DAA with ggpicrust2
+# source: https://cran.r-universe.dev/ggpicrust2/doc/manual.html
+runDAAFunx_ggpicrust2 <- function(abundTbl = NULL, metadata = NULL, group_var = NULL, ref = NULL, methods = NULL){
+  # Run pathway_daa function for multiple methods
+  daa_results_list <- lapply(methods, function(method) {
+  pathway_daa(abundance = abundTbl %>% column_to_rownames("function."),
+  metadata = metadata, group = group_var, daa_method = method, reference = ref)
+  })
+  
+  names(daa_results_list) <- methods
+
+  # Compare results across different methods
+  comparison_results <- compare_daa_results(daa_results_list = daa_results_list,
+  method_names = methods)
+  
+  return(list(
+    results = daa_results_list,
+    comparison = comparison_results
+  ))
+}
+
+# convert unstrat to ggpicrust2 compatiable format
+dfUnstrat_wide <- dfUnstrat_rawCounts %>%
+  select(sample, function., abundance) %>%
+  pivot_wider(names_from = sample, values_from = abundance, values_fill = 0)
+
+# define methods
+fullMethods <- c("DESeq2", "edgeR","Maaslin2", "ALDEx2")
+methodsWithoutMasslin2 <- c("DESeq2", "edgeR", "ALDEx2")
+#turned
+turnedAcc <- metadata[metadata$turned != "na", "accession"][[1]]
+turnedMd <- metadata[metadata$accession %in% turnedAcc,]
+turnedUnstrat <- dfUnstrat_wide[,append("function.", turnedAcc),]
+turnedDaa <- runDAAFunx_ggpicrust2(abundTbl = turnedUnstrat, metadata = turnedMd, group_var = "turned", ref = NULL, methods = fullMethods)
+
+#treatment
+treatmentDaa <- runDAAFunx_ggpicrust2(abundTbl = dfUnstrat_wide, metadata = metadata, group_var = "treatment", ref = NULL, methods = methodsWithoutMasslin2)
+
+#plant type
+plantDaa <- runDAAFunx_ggpicrust2(abundTbl = dfUnstrat_wide, metadata = metadata, group_var = "plant", ref = NULL, methods = fullMethods)
+
+# retting type
+rettingTypeDaa <- runDAAFunx_ggpicrust2(abundTbl = dfUnstrat_wide, metadata = metadata, group_var = "retting_type", ref = NULL, methods = fullMethods)
+
+#stage
+stageDaa <- runDAAFunx_ggpicrust2(abundTbl = dfUnstrat_wide, metadata = metadata, group_var = "stage", ref = "early", methods = fullMethods)
+
+#combine daa results and find shared families between methods
+pooledDAA <- list(plant = plantDaa, treatment = treatmentDaa,
+                  stage = stageDaa, rettingType = rettingTypeDaa,
+                  turned = turnedDaa)
+
+daaResults <- data.frame()
+for(daaTest in names(pooledDAA)){
+  daa <- pooledDAA[[daaTest]]$comparison %>%
+    select(common_features, diff_features) %>%
+    mutate(cazyCode = strsplit(diff_features, ",")) %>%
+    unnest(cazyCode)
+  
+  sharedByTwo <- str_trim(str_split(daa$common_features[[1]], ",")[[1]])
+  for(code in unique(daa$cazyCode)){
+    if(sum(daa$cazyCode == code) >= 2){
+      sharedByTwo <- append(str_trim(code),sharedByTwo)
+    }
+  }
+  sharedByTwo <- unique(sharedByTwo)
+  tempDf <- data.frame(relevantCazy = sharedByTwo, group = daaTest) %>%
+    filter(relevantCazy != "" )
+  daaResults <- rbind(daaResults, tempDf)
+}
+table(daaResults)
+
+# deterime how many differentially expressed CAZy families were found for each group
+nFuxTurned <- nrow(daaResults[daaResults$group == "turned",])
+nFunxStage <- nrow(daaResults[daaResults$group == "stage",])
+nFunxTreatment <- nrow(daaResults[daaResults$group == "treatment",])
+nFunxPlant <- nrow(daaResults[daaResults$group == "plant",])
+nFunxRettingType <- nrow(daaResults[daaResults$group == "rettingType",])
+
+#get a list of each differentially expressed cazy family
+
+differentiallyExpressed_cazy <- unique(daaResults$relevantCazy)
+```
+
+# Visulize Genus/Function Composition
+## funx for viz
+```{r}
+plot_stacked_by_treatment <- function(df) {
+
+  # ensure consistent factors
+  df <- df %>%
+    mutate(
+      genus = factor(genus),
+      Substrate = factor(Substrate),
+      treatment = factor(str_to_title(treatment)),
+      rettingPeriod = factor(rettingPeriod, levels = paste0("R", seq(0, 100, by = 1)) )
+    )
+  
+  
+#Get all unique genera across all treatments
+  all_genera <- sort(unique(df$genus))
+
+  #  consistent colors and patterns
+  genus_colors <- setNames(
+    viridis::viridis(length(all_genera), option = "D"),
+    all_genera
+  )
+
+  available_patterns <- c("stripe", "circle", "crosshatch", "none", "wave")
+  genus_patterns <- setNames(
+    rep(available_patterns, length.out = length(all_genera)),
+    all_genera
+  )
+  # Loop through treatments and build plots
+  treatments <- unique(df$treatment)
+  plot_list <- list()
+   for (sub in unique(df$Substrate)) {
+    df_sub <- df %>% 
+      filter(Substrate == sub)
+  
+    df_grouped <- df_sub %>%
+      group_by(genus, treatment, rettingPeriod, Substrate) %>%
+      summarise(relative_abun = sum(relative_abun, na.rm = TRUE), .groups = "drop")%>%
+      filter(relative_abun >= 0.05)%>%
+      ungroup()
+  
+    p <- ggplot(df_grouped, aes(
+      x = rettingPeriod,
+      y = relative_abun,
+      fill = genus,
+      pattern = genus
+    )) +
+      geom_bar_pattern(
+        stat = "identity",
+        pattern_fill = "white",
+        pattern_color = "white",
+        pattern_angle = 45,
+        pattern_density = 0.1,
+        pattern_spacing = 0.02,
+        pattern_key_scale_factor = .7
+      ) +
+      scale_fill_manual(values = genus_colors) +
+      scale_pattern_manual(values = genus_patterns) +
+      facet_wrap(~ treatment, scales = "free_x") +  
+      labs(
+        title = paste0("Relative Functional Abundance of ", gsub("Pectin", "Pectinase", gsub("ose", "ase",sub)), "\nActivity by Genus and Treatment"),
+        x = "Retting Period",
+        y = "Relative Abundance",
+        fill = "Genus",
+        pattern = "Genus"
+      ) +
+      theme_classic() +
+      theme(
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size = 19),
+        axis.title.y = element_text(size = 19),
+        legend.text = element_text(size = 18),
+        legend.title = element_text(size = 20),
+        plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+        strip.text = element_text(size = 18, face = "bold"),
+        legend.position = "right")+
+      coord_cartesian(expand=FALSE)
+    
+    plot_list[[as.character(sub)]] <- p
+    }
+return(plot_list)
+}
+
+
+# function to combine replicates (so sorry if you need to debug this, 
+#there are hardcoded groupings do make sure your df has the proper column names
+combineReplicateMetagenomes_PICRUSt2 <- function(df = NULL){
+  group_cols <- c("genus", "exp_ID", "Substrate", "rettingPeriod", "treatment", "cultivar_type.y")
+
+  summarise_group <- function(data) {
+    data %>%
+      group_by(across(all_of(group_cols))) %>%
+      summarise(
+        totalFunctionalAbun = sum(totalFunctionalAbun, na.rm = TRUE),
+        exp_ID = first(exp_ID),
+        rettingPeriod = first(rettingPeriod),
+        treatment = first(treatment),
+        cultivar_type = first(cultivar_type.y),
+        .groups = "drop"
+      )
+  }
+  
+  return(summarise_group(df))
+
+}
+
+
+
+
+```
+
+```{r processsTheContribFile}
+# get taxonomy of each otu and determine the top 10 otus by relative abundance which OTUs comprimise 
+dfContrib_withTaxonomy <- data.frame()
+dfContrib_selectedColumns <- dfContrib[,c("sample", "function.", "taxon", "exp_ID", "taxon_function_abun", "taxon_abun")]
+for(experiment in dataDirs){
+  mothurDir <- paste0("../mothur/", experiment, "/output/")
+  otusToMerge <- unique(dfContrib_selectedColumns[dfContrib_selectedColumns$exp_ID == experiment, "taxon"])
+  
+  #find taxonomy of different seq.names and merge with the significant otus while tracking the experiment and sample
+  otuSeqNames <- pivot_longer(read.delim(file=paste0(mothurDir,"final.opti_mcc.list"), header=TRUE, sep="\t"),
+                      cols=starts_with("Otu")) %>%
+    filter(name %in% otusToMerge) %>%
+    select(name, seq.name = value) %>% 
+    mutate(seq.name = strsplit(seq.name, ",")) %>%
+    unnest(seq.name)
+  
+  seqTaxes <- read.delim(file=paste0(mothurDir,"final.taxonomy"), sep = "\t", header = F, col.names = c("seq.name","taxonomy")) %>%
+    mutate(genus = sapply(strsplit(as.character(taxonomy), ";"), function(x) x[6]))
+  
+  otusByTax <- left_join(otuSeqNames, seqTaxes[,c("genus", "seq.name")], by = "seq.name") %>%
+    select(name, genus, seq.name) %>%
+    mutate(genus = str_remove_all(genus, "\\s*\\(\\d+\\)"),
+           genus = gsub( "_", " ", genus),
+           seq.name = str_remove_all(seq.name, "\\.\\d+"),
+           experiment =  experiment)
+  
+  otusByTax <- left_join(otusByTax, metadata[,c("accession","rettingPeriod", "retting_type", "stage","turned", "plant", "treatment", "cultivar_type")], by = join_by(seq.name == accession), relationship = "many-to-many")
+  
+  
+  # merge otu taxonomy with contrib file
+  contribWithTax_temp <- left_join(otusByTax, dfContrib_selectedColumns[dfContrib_selectedColumns$exp_ID == experiment,], by = join_by(name == taxon), relationship = "many-to-many") %>%
+    select(-experiment) %>%
+    filter(function. %in% differentiallyExpressed_cazy)
+  
+  dfContrib_withTaxonomy <- rbind(dfContrib_withTaxonomy, contribWithTax_temp)
+}
+
+
+#write_rds(dfContrib_withTaxonomy, file = "dfContrib_withTaxonomy.rds")
+
+# dfContrib_withTaxonomy_ <- read_rds(file="dfContrib_withTaxonomy.rds") %>%
+#   select(name, genus,seq.name, function., taxon_function_abun, exp_ID, turned, cultivar_type)
+
+#merge the otu/sequence data with the metadata and find the relative abundance for each genus/function/sample combo
+
+dfContrib_withTaxonomy <- left_join(dfContrib_withTaxonomy, targetEnzymes[, c("Substrate", "CAZy Family")], by = join_by(`function.` == "CAZy Family")) %>%
+  group_by(genus, Substrate, seq.name, exp_ID, cultivar_type) %>%
+  summarise(totalFunctionalAbun = sum(taxon_function_abun), .groups = "drop")
+
+dfContrib_withTaxonomy <- left_join(dfContrib_withTaxonomy, metadata[, c("accession", "rettingPeriod","treatment", "stage", "cultivar_type", "turned")], by = join_by("seq.name" == "accession"))
+
+
+pooledContrib_functionGenusMetadata <- combineReplicateMetagenomes_PICRUSt2(df = dfContrib_withTaxonomy)
+
+df_grouped <- pooledContrib_functionGenusMetadata %>%
+  group_by(exp_ID, rettingPeriod, treatment, Substrate, cultivar_type) %>%
+  mutate(
+    relative_abun = totalFunctionalAbun / sum(totalFunctionalAbun, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  group_by(exp_ID, treatment, rettingPeriod, cultivar_type, Substrate) %>%
+  arrange(desc(relative_abun), .by_group = TRUE) %>%
+  mutate(rank = row_number()) %>%
+  filter(rank <= 10) %>%
+  ungroup() %>%
+  filter(relative_abun >= 0.02)
+
+#write_rds(df_grouped, file = "dfToMakeStackedBars.rds")
+#df_grouped <- read_rds(file = "dfToMakeStackedBars.rds")
+```
+
+
+```{r saveStackedBarplotsAsPNGs}
+#loop through each experiment
+
+for (exp in dataDirs) {
+  dfToPlot <- df_grouped %>% 
+    filter(exp_ID == exp) %>%
+    mutate(genus = gsub(" unclassified$", "*", genus))
+  
+  #special case to handle multipul cultivars
+  if (exp == "PRJNA494847") {
+    # plot each cultivar (choosen because the otus were slightly sparatic)
+    for (cult in unique(dfToPlot$cultivar_type)) {
+      dfCult <- dfToPlot %>% 
+        filter(cultivar_type == cult)
+        
+        #determine the top ten 
+        top10 <- dfCult %>%
+          group_by(Substrate, genus) %>%
+          summarise(count = n(), .groups = "drop_last") %>%
+          arrange(Substrate, desc(count)) %>%
+          mutate(rank = row_number()) %>%
+          filter(rank <= 10)
+      
+        dfCult_topTenGenera <- dfCult %>%
+          filter(genus %in% top10$genus) %>%
+          filter(relative_abun >= 0.02)
+    
+        plots <- plot_stacked_by_treatment(dfCult_topTenGenera)
+        
+        for (plot in names(plots)) {
+          # Clean plot and treatment name for filename
+          clean_plot_name <- gsub("[^A-Za-z0-9_]", "_", plot)
+          clean_cult <- gsub("[^A-Za-z0-9_]", "_", cult)
+          
+          plotPath <- paste0("./", exp, "/plot_", clean_plot_name, "_", clean_cult, "_", exp, ".png")
+          ggsave(
+          filename = plotPath,
+          plot = plots[[plot]] + theme(plot.margin = margin(t = 20, r = 20, b = 20, l = 40)),
+          width = 12,
+          height = 8,
+          dpi = 800
+          )
+        }
+      }
+
+  }else {
+    # Normal processing for other experiments
+    plots <- plot_stacked_by_treatment(dfToPlot)
+    
+    for (plot in names(plots)) {
+      clean_plot_name <- gsub("[^A-Za-z0-9_]", "_", plot)
+      
+      plotPath <- paste0("./", exp, "/plot_", clean_plot_name, "_", exp, ".png")
+      ggsave(
+      filename = plotPath,
+      plot = plots[[plot]] + theme(plot.margin = margin(t = 20, r = 20, b = 20, l = 40)) ,
+      width = 12,
+      height = 8,
+      dpi = 800
+      )
+    }
+  }
+}
+
+
+```
+
+
+
+
+
+
+
+
+```{r}
+# cute 3d plot, probaly not useable (broken atm)
+plot_ly(
+  data = scores,
+  x = ~PC1, y = ~PC2, z = ~PC3,
+  color = ~get("turned"),
+  colors = "Set2",
+  text = ~sample,
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(size = 5)
+) %>%
+  layout(
+    title = "3D PCA of PICRUSt2 Functional Profiles",
+    scene = list(
+      xaxis = list(title = paste0("PC1 (", percent_var[1], "%)")),
+      yaxis = list(title = paste0("PC2 (", percent_var[2], "%)")),
+      zaxis = list(title = paste0("PC3 (", percent_var[3], "%)"))
+    )
+  )
+
+sum(unlist(dfUnstrat[1, sapply(dfUnstrat, is.numeric)]))
+unlist(dfUnstrat[1, ])
+```
+
+

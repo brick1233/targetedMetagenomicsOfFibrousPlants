@@ -1,0 +1,113 @@
+"","experiment","estimator","group","filter1","filter2","filter3","alternative","pVal"
+"1","PRJEB27872","chao","stage","middle","late","na","greater",1
+"2","PRJEB27872","shannon","stage","middle","late","na","greater",1
+"3","PRJNA494847","shannon","stage","middle","late","Soil Slurry","greater",0.962167138734644
+"4","PRJNA309354","invsimpson","stage","middle","late","na","greater",0.933333333333333
+"5","PRJNA494847","invsimpson","stage","middle","late","Soil Slurry","greater",0.903213369391859
+"6","PRJEB27872","invsimpson","stage","middle","late","na","greater",0.9
+"7","PRJNA309354","chao","stage","middle","late","na","less",0.866666666666667
+"8","PRJNA309354","heip","stage","middle","late","na","greater",0.866666666666667
+"9","PRJEB20299","invsimpson","stage","middle","late","na","less",0.828571428571429
+"10","PRJEB20299","chao","stage","middle","late","na","less",0.828571428571429
+"11","PRJNA494847","chao","stage","middle","late","Soil Slurry","greater",0.825914771727129
+"12","PRJNA494847","chao","stage","middle","late","Low Moisture","greater",0.812431870189307
+"13","PRJEB27872","heip","stage","middle","late","na","less",0.8
+"14","PRJEB20299","shannon","stage","middle","late","na","less",0.757142857142857
+"15","PRJNA494847","shannon","stage","middle","late","Low Moisture","greater",0.752615043232892
+"16","PRJNA494847","heip","stage","middle","late","Low Moisture","less",0.666067540392483
+"17","PRJEB20299","heip","stage","middle","late","na","greater",0.657142857142857
+"18","PRJNA494847","heip","stage","middle","late","Soil Slurry","greater",0.647472222666731
+"19","PRJNA494847","chao","stage","middle","late","High Moisture","less",0.60928304342492
+"20","PRJNA309354","shannon","stage","middle","late","na","less",0.6
+"21","PRJNA494847","invsimpson","stage","middle","late","Low Moisture","greater",0.570052860945309
+"22","PRJNA494847","invsimpson","stage","middle","late","High Moisture","less",0.570052860945309
+"23","PRJEB27872","heip","turned","na","na","na","less",0.547619047619048
+"24","PRJEB20299","heip","stage","early","middle","na","greater",0.542857142857143
+"25","PRJNA494847","heip","stage","middle","late","High Moisture","less",0.510055527996031
+"26","PRJNA494847","shannon","stage","middle","late","High Moisture","greater",0.510055527996031
+"27","PRJNA309354","shannon","treatment","na","na","na","greater",0.5
+"28","PRJNA494847","shannon","stage","early","middle","Low Moisture","less",0.477151605600719
+"29","PRJEB20299","chao","turned","na","na","na","greater",0.474858474858475
+"30","PRJNA494847","heip","stage","early","late","Soil Slurry","less",0.471407040417542
+"31","PRJEB20299","chao","stage","early","late","na","less",0.457142857142857
+"32","PRJEB20299","heip","treatment","na","na","na","greater",0.450757575757576
+"33","PRJNA309354","invsimpson","stage","early","middle","na","greater",0.442857142857143
+"34","PRJEB20299","heip","turned","na","na","na","greater",0.425907425907426
+"35","PRJNA309354","chao","treatment","na","na","na","greater",0.420634920634921
+"36","PRJEB20299","invsimpson","treatment","na","na","na","less",0.402389277389277
+"37","PRJEB27872","invsimpson","stage","early","middle","na","less",0.4
+"38","PRJNA309354","shannon","stage","early","late","na","greater",0.4
+"39","PRJNA309354","heip","stage","early","late","na","greater",0.4
+"40","PRJNA494847","invsimpson","treatment","Soil Slurry","Low Moisture","na","less",0.38990261542796
+"41","PRJNA494847","chao","stage","early","late","Low Moisture","greater",0.387030587844401
+"42","PRJEB20299","invsimpson","stage","early","middle","na","greater",0.380952380952381
+"43","PRJEB20299","invsimpson","stage","early","late","na","greater",0.380952380952381
+"44","PRJEB20299","chao","stage","early","middle","na","greater",0.380952380952381
+"45","PRJEB20299","heip","stage","early","late","na","greater",0.380952380952381
+"46","PRJNA494847","shannon","turned","Soil Slurry","na","na","less",0.372199755394133
+"47","PRJNA494847","invsimpson","treatment","Soil Slurry","High Moisture","na","greater",0.371180444353518
+"48","PRJNA494847","chao","stage","early","middle","Soil Slurry","greater",0.369760491496944
+"49","PRJNA494847","chao","turned","Low Moisture","na","na","less",0.365722702993479
+"50","PRJNA494847","heip","stage","early","late","High Moisture","less",0.359822368627904
+"51","PRJNA309354","invsimpson","treatment","na","na","na","less",0.345238095238095
+"52","PRJNA309354","shannon","stage","early","middle","na","greater",0.342857142857143
+"53","PRJNA309354","heip","stage","early","middle","na","less",0.342857142857143
+"54","PRJNA494847","shannon","treatment","High Moisture","Low Moisture","na","greater",0.341414233844102
+"55","PRJNA494847","heip","stage","early","middle","High Moisture","less",0.335668909486323
+"56","PRJEB20299","invsimpson","turned","na","na","na","greater",0.331002331002331
+"57","PRJEB27872","heip","stage","early","late","na","less",0.314285714285714
+"58","PRJNA494847","heip","turned","High Moisture","na","na","less",0.309303507409791
+"59","PRJNA494847","heip","stage","early","late","Low Moisture","greater",0.307523394128609
+"60","PRJNA494847","shannon","turned","Low Moisture","na","na","greater",0.297289955427865
+"61","PRJNA494847","invsimpson","stage","early","late","Soil Slurry","greater",0.282648299485635
+"62","PRJEB27872","chao","turned","na","na","na","greater",0.277777777777778
+"63","PRJNA494847","invsimpson","treatment","High Moisture","Low Moisture","na","greater",0.272513371329145
+"64","PRJEB27872","chao","stage","early","middle","na","less",0.266666666666667
+"65","PRJEB27872","shannon","stage","early","middle","na","less",0.266666666666667
+"66","PRJEB27872","heip","stage","early","middle","na","greater",0.266666666666667
+"67","PRJNA309354","invsimpson","stage","early","late","na","greater",0.266666666666667
+"68","PRJNA309354","chao","stage","early","late","na","greater",0.266666666666667
+"69","PRJNA494847","chao","stage","early","middle","Low Moisture","less",0.256477184835445
+"70","PRJEB20299","shannon","stage","early","late","na","greater",0.238095238095238
+"71","PRJNA494847","invsimpson","stage","early","middle","Low Moisture","greater",0.234730565809492
+"72","PRJEB20299","shannon","treatment","na","na","na","greater",0.227855477855478
+"73","PRJEB20299","chao","treatment","na","na","na","less",0.227855477855478
+"74","PRJNA494847","chao","treatment","High Moisture","Low Moisture","na","greater",0.216690710614857
+"75","PRJEB27872","invsimpson","stage","early","late","na","greater",0.2
+"76","PRJNA494847","shannon","treatment","Soil Slurry","Low Moisture","na","greater",0.184016711940275
+"77","PRJNA309354","chao","stage","early","middle","na","greater",0.171428571428571
+"78","PRJNA494847","invsimpson","turned","Soil Slurry","na","na","less",0.16773668152932
+"79","PRJNA494847","heip","treatment","High Moisture","Low Moisture","na","less",0.166584067861568
+"80","PRJNA494847","invsimpson","stage","early","late","Low Moisture","greater",0.165043814067239
+"81","PRJNA494847","invsimpson","turned","Low Moisture","na","na","greater",0.155044066037702
+"82","PRJNA309354","heip","treatment","na","na","na","less",0.154761904761905
+"83","PRJNA494847","chao","turned","Soil Slurry","na","na","greater",0.150955553501918
+"84","PRJNA494847","heip","turned","Low Moisture","na","na","greater",0.142992037577199
+"85","PRJEB27872","invsimpson","turned","na","na","na","greater",0.142857142857143
+"86","PRJNA494847","heip","stage","early","middle","Low Moisture","greater",0.137112615874664
+"87","PRJNA494847","heip","turned","Soil Slurry","na","na","less",0.13531262825102
+"88","PRJNA494847","shannon","stage","early","late","Soil Slurry","greater",0.131289147775603
+"89","PRJEB20299","shannon","stage","early","middle","na","greater",0.128571428571429
+"90","PRJNA494847","shannon","stage","early","middle","Soil Slurry","less",0.122396057004608
+"91","PRJNA494847","chao","stage","early","middle","High Moisture","less",0.117741038877483
+"92","PRJEB27872","chao","stage","early","late","na","greater",0.114285714285714
+"93","PRJEB27872","shannon","stage","early","late","na","greater",0.114285714285714
+"94","PRJEB20299","shannon","turned","na","na","na","greater",0.114219114219114
+"95","PRJNA494847","shannon","stage","early","late","Low Moisture","greater",0.109219032946377
+"96","PRJEB27872","shannon","turned","na","na","na","greater",0.0952380952380952
+"97","PRJNA494847","shannon","treatment","Soil Slurry","High Moisture","na","greater",0.086757231167724
+"98","PRJNA494847","chao","stage","early","late","High Moisture","less",0.0839848048633955
+"99","PRJNA494847","heip","stage","early","middle","Soil Slurry","less",0.0778322584601885
+"100","PRJNA494847","invsimpson","stage","early","late","High Moisture","less",0.0680378567647101
+"101","PRJNA494847","chao","turned","High Moisture","na","na","less",0.0600418873591423
+"102","PRJNA494847","shannon","stage","early","late","High Moisture","less",0.0587323704888974
+"103","PRJNA494847","chao","stage","early","late","Soil Slurry","greater",0.0504205398409743
+"104","PRJNA494847","invsimpson","stage","early","middle","Soil Slurry","less",0.0466154122383377
+"105","PRJNA494847","invsimpson","stage","early","middle","High Moisture","less",0.0421820185434632
+"106","PRJNA494847","heip","treatment","Soil Slurry","Low Moisture","na","less",0.0266530918513225
+"107","PRJNA494847","invsimpson","turned","High Moisture","na","na","less",0.0220662144312336
+"108","PRJNA494847","shannon","stage","early","middle","High Moisture","less",0.00626354231283838
+"109","PRJNA494847","shannon","turned","High Moisture","na","na","less",0.0043421096678572
+"110","PRJNA494847","heip","treatment","Soil Slurry","High Moisture","na","less",0.00266393290577236
+"111","PRJNA494847","chao","treatment","Soil Slurry","Low Moisture","na","greater",0.00059513435321497
+"112","PRJNA494847","chao","treatment","Soil Slurry","High Moisture","na","greater",0.00056383411131853
