@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -p shared # select partition
-#SBATCH -c 64                # CPU allocation, one per thread, up to 128.
-#SBATCH --mem=64G            # memory requirments, up to 250G.
-#SBATCH --gres=tmp:50G       # $TMPDIR space required on each compute node, up to 400G.
+#SBATCH -c 64                # CPU allocation
+#SBATCH --mem=64G            # memory requirments
+#SBATCH --gres=tmp:50G       # $TMPDIR space 
 #SBATCH -t 01:00:00     # time limit in format dd-hh:mm:ss
 #SBATCH --job-name=S01_installAndConfig_sraToolkit # name the job
 #SBATCH --output=../log/S01_installAndConfig_sraToolkitMothur%A_%a.out
