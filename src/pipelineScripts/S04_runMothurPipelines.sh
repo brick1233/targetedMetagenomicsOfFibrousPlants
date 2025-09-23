@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -p shared # select partition
-#SBATCH -c 128               # CPU allocation, one per thread, up to 128.
-#SBATCH --mem=125G            # memory requirments, up to 250G.
-#SBATCH --gres=tmp:50G       # $TMPDIR space required on each compute node, up to 400G.
+#SBATCH -c 128               # CPU allocation
+#SBATCH --mem=125G            # memory requirments.
+#SBATCH --gres=tmp:50G       # $TMPDIR space
 #SBATCH -t 24:00:00     # time limit in format dd-hh:mm:ss
 #SBATCH --job-name=S04_runMothur # name the job
 #SBATCH --output=../log/S04_runMothurSumm%A_%a.out
