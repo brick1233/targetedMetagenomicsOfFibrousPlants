@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -p shared # select partition
-#SBATCH -c 128               # CPU allocation, one per thread, up to 128.
-#SBATCH --mem=64G            # memory requirments, up to 250G.
-#SBATCH --gres=tmp:50G       # $TMPDIR space required on each compute node, up to 400G.
+#SBATCH -c 128               # CPU allocation
+#SBATCH --mem=64G            # memory requirment
+#SBATCH --gres=tmp:50G       # $TMPDIR space
 #SBATCH -t 24:00:00     # time limit in format dd-hh:mm:ss
 #SBATCH --job-name=S06_runPICRUST2 # name the job
 #SBATCH --output=../log/S06_runPICRUST2%A_%a.out
