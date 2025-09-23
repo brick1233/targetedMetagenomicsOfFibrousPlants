@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -p shared # select partition
-#SBATCH -c 16                # CPU allocation, one per thread, up to 128.
-#SBATCH --mem=32G            # memory requirments, up to 250G.
-#SBATCH --gres=tmp:150G       # $TMPDIR space required on each compute node, up to 400G.
+#SBATCH -c 16                # CPU allocation
+#SBATCH --mem=32G            # memory requirments
+#SBATCH --gres=tmp:150G       # $TMPDIR space required
 #SBATCH -t 01:00:00     # time limit in format dd-hh:mm:ss
 #SBATCH --job-name=S02_downloadFastq # name the job
 #SBATCH --output=../log/S02_downloadFastq%A_%a.out
