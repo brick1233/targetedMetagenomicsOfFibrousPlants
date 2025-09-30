@@ -1,5 +1,5 @@
 ---
-title: "The Bacterial Communites Associated with Retting: a Meta-Analysis"
+title: "The Bacterial Communities Associated with Retting: a Meta-Analysis"
 author: "By: qsfl69"
 date: "`r Sys.Date()`"
 output:
